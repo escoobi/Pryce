@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void insertEmitente(String razao, String cnpj, String logradouro, String numero, String bairro, String cidade, String uf) {
         try {
-            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?");
+            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?razao="+razao+"&cnpj="+cnpj+"&logradouro="+logradouro+"&numero="+numero+"&bairro="+bairro+"&cidade="+cidade+"&uf="+uf);
 
             url.openConnection();
 
@@ -248,6 +248,16 @@ public class MainActivity extends AppCompatActivity {
                 numeros.append(br.readLine()).append("\n");
 
             }
+
+
+            String minhaLinhaDaXexeca;
+            while ((minhaLinhaDaXexeca = br.readLine()) != null) {
+                numeros.append(minhaLinhaDaXexeca).append("\n");
+
+            }
+
+
+
 
             Scanner scan = new Scanner(numeros.toString());
             int numLinha = 0;
@@ -272,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
                         if (numLinha == minhaLinhaValor) {
                             System.out.println(linha.substring(linha.indexOf("Vl. Unit.:</strong>&nbsp;") + 25, linha.indexOf("</span></td>")));
                             val = linha.substring(linha.indexOf("Vl. Unit.:</strong>&nbsp;") + 25, linha.indexOf("</span></td>"));
+                            val = val.replace(",",".");
                             minhaLinhaValor = minhaLinhaValor + 6;
 
                         }
@@ -290,15 +301,17 @@ public class MainActivity extends AppCompatActivity {
             }
             scan.close();
             br.close();
-            // insertProd(descr, cod, val);
+            insertProd(descr, cod, val);
         } catch (Exception localException) {
         }
     }
 
     public void insertProd(String desc, String cod, String val) {
         try {
-          /*  String sql = "update or insert into tbproduto (descr, cod, val, idemitente, data, hora) values ('" + desc.toUpperCase().replace("'", "").replace(",", "") + "', '" + cod + "', '" + val.replace(",", ".")
-                    + "', (SELECT idemitente FROM tbemitente WHERE cnpj = '" + cnpjSelect + "'), '" + data + "', '" + hora + "') matching (descr);";*/
+            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertProd.php?desc="+desc+"&cod="+cod+"&val="+val+"&dt="+data+"&hr="+hora+"&cnpj="+cnpjSelect);
+
+            url.openConnection();
+
         } catch (Exception e) {
             e.printStackTrace();
 
