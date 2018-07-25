@@ -18,12 +18,18 @@ import java.io.BufferedReader;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.Scanner;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -227,10 +233,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void insertEmitente(String razao, String cnpj, String logradouro, String numero, String bairro, String cidade, String uf) {
         try {
+
+            OkHttpClient client = new OkHttpClient();
             URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?razao="+razao+"&cnpj="+cnpj+"&logradouro="+logradouro+"&numero="+numero+"&bairro="+bairro+"&cidade="+cidade+"&uf="+uf);
-
-            url.openConnection();
-
+            Request request = new Request.Builder().url(url).build();
+            Response response = client.newCall(request).execute();
 
 
         } catch (Exception e) {
@@ -308,9 +315,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void insertProd(String desc, String cod, String val) {
         try {
+            OkHttpClient client = new OkHttpClient();
             URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertProd.php?desc="+desc+"&cod="+cod+"&val="+val+"&dt="+data+"&hr="+hora+"&cnpj="+cnpjSelect);
-
-            url.openConnection();
+            Request request = new Request.Builder().url(url).build();
+            Response response = client.newCall(request).execute();
 
         } catch (Exception e) {
             e.printStackTrace();
