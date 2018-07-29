@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
             if (result.getContents() != null) {
                 alert(result.getContents());
                 qrcode = result.getContents();
+                qrcode = qrcode.substring(qrcode.indexOf(".") + 1, qrcode.indexOf("&n"));
+                qrcode = qrcode + "&nVersao=100&tpAmb=1";
             } else {
                 alert("Leitura cancelada.");
             }
@@ -158,59 +160,49 @@ public class MainActivity extends AppCompatActivity {
                 // Pega razão social
                 if (linha.contains("u20")) {
                     linha = linha.substring(30, linha.indexOf("</"));
-                    System.out.println(linha);
                     razao = linha;
                 }
                 // Pega cnpj
                 if (nLinha == 147) {
                     linha = linha.substring(6, linha.indexOf("</"));
-                    System.out.println(linha);
                     cnpj = linha;
                     cnpjSelect = linha;
                 }
                 // Pega logradouro
                 if (nLinha == 148) {
                     linha = linha.substring(18, linha.indexOf(","));
-                    System.out.println(linha);
                     logradouro = linha;
                 }
                 // Pega numero
                 if (nLinha == 149) {
                     linha = linha.substring(2, linha.indexOf(","));
-                    System.out.println(linha);
                     numero = linha;
                 }
                 // Pega bairro
                 if (nLinha == 151) {
                     linha = linha.substring(2, linha.indexOf(","));
-                    System.out.println(linha);
                     bairro = linha;
                 }
                 // Pega cidade
                 if (nLinha == 152) {
                     linha = linha.substring(2, linha.indexOf(","));
-                    System.out.println(linha);
                     cidade = linha;
                 }
                 // Pega uf
                 if (nLinha == 153) {
                     linha = linha.substring(2, linha.indexOf("</"));
-                    System.out.println(linha);
                     uf = linha;
                 }
                 // Pegar qtd itens
                 if (linha.contains("Qtd. total de itens:")) {
                     linha = linha.substring(59, linha.indexOf("</span>"));
                     qtditens = Integer.parseInt(linha);
-                    System.out.println(linha);
                 }
                 // Pegar data emissão
-                if (linha.contains("Via Consumidor")) {
-                    linha = linha.substring(105, linha.indexOf("-"));
-                    data = linha.substring(0, 10);
+                if (linha.contains("Protocolo de Autoriza")) {
+                    data = linha.substring(79, 89);
                     data = data.replace("/", ".");
-                    hora = linha.substring(11, 19);
-                    System.out.println(data + "\n" + hora);
+                    hora = linha.substring(90, 98);
                 }
                 nLinha++;
                 if (razao != null && cnpj != null && logradouro != null && numero != null && bairro != null
@@ -235,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             OkHttpClient client = new OkHttpClient();
-            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?razao="+razao+"&cnpj="+cnpj+"&logradouro="+logradouro+"&numero="+numero+"&bairro="+bairro+"&cidade="+cidade+"&uf="+uf);
+            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?razao=" + razao + "&cnpj=" + cnpj + "&logradouro=" + logradouro + "&numero=" + numero + "&bairro=" + bairro + "&cidade=" + cidade + "&uf=" + uf);
             Request request = new Request.Builder().url(url).build();
             Response response = client.newCall(request).execute();
 
@@ -264,8 +256,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-
-
             Scanner scan = new Scanner(numeros.toString());
             int numLinha = 0;
             int minhaLinha = 157;
@@ -278,18 +268,17 @@ public class MainActivity extends AppCompatActivity {
                     if (qtdTotal != numLinha) {
                         // Obter itens
                         if (numLinha == minhaLinha) {
-                            System.out.println(linha.substring(38, linha.indexOf("</span>")));
+
                             descr = linha.substring(38, linha.indexOf("</span>"));
-                            System.out.println(linha.substring(linha.indexOf(":") + 1, linha.indexOf(")</span>")).replace(" ", ""));
                             cod = linha.substring(linha.indexOf(":") + 1, linha.indexOf(")</span>")).replace(" ", "");
                             minhaLinha = minhaLinha + 6;
 
                         }
                         // Obter valor itens
                         if (numLinha == minhaLinhaValor) {
-                            System.out.println(linha.substring(linha.indexOf("Vl. Unit.:</strong>&nbsp;") + 25, linha.indexOf("</span></td>")));
+
                             val = linha.substring(linha.indexOf("Vl. Unit.:</strong>&nbsp;") + 25, linha.indexOf("</span></td>"));
-                            val = val.replace(",",".");
+                            val = val.replace(",", ".");
                             minhaLinhaValor = minhaLinhaValor + 6;
 
                         }
@@ -316,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
     public void insertProd(String desc, String cod, String val) {
         try {
             OkHttpClient client = new OkHttpClient();
-            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertProd.php?desc="+desc+"&cod="+cod+"&val="+val+"&dt="+data+"&hr="+hora+"&cnpj="+cnpjSelect);
+            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertProd.php?desc=" + desc + "&cod=" + cod + "&val=" + val + "&dt=" + data + "&hr=" + hora + "&cnpj=" + cnpjSelect);
             Request request = new Request.Builder().url(url).build();
             Response response = client.newCall(request).execute();
 
