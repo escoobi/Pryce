@@ -11,6 +11,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -24,6 +29,8 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import okhttp3.OkHttpClient;
@@ -74,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -83,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 alert(result.getContents());
                 qrcode = result.getContents();
                 qrcode = qrcode.substring(qrcode.indexOf(".") + 1, qrcode.indexOf("&n"));
-                qrcode = qrcode + "&nVersao=100&tpAmb=1";
+                qrcode = "http://" + qrcode + "&nVersao=100&tpAmb=1";
             } else {
                 alert("Leitura cancelada.");
             }
@@ -128,8 +136,13 @@ public class MainActivity extends AppCompatActivity {
             URL url = null;
             try {
                 url = new URL(qrcode);
-                obterEmitente(url);
-                obterItens(url);
+                if(qrcode.length() == 124) {
+                    obterEmitente(url);
+                    obterItens(url);
+                }
+                else{
+                    alert("Erro ao ler o QRCode.");
+                }
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -223,6 +236,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static class Post {
+
+        public String author;
+        public String title;
+
+        public Post(String author, String title) {
+            // ...
+        }
+
+    }
+
     public void insertEmitente(String razao, String cnpj, String logradouro, String numero, String bairro, String cidade, String uf) {
         try {
 
@@ -230,6 +254,63 @@ public class MainActivity extends AppCompatActivity {
             URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?razao=" + razao + "&cnpj=" + cnpj + "&logradouro=" + logradouro + "&numero=" + numero + "&bairro=" + bairro + "&cidade=" + cidade + "&uf=" + uf);
             Request request = new Request.Builder().url(url).build();
             Response response = client.newCall(request).execute();
+
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("emitente");
+            DatabaseReference refIdEmitente = myRef.child(myRef.push().getKey());
+
+
+
+/*
+
+
+            myRef.addChildEventListener(new ValueEventListener(){
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Post post = dataSnapshot.getValue(Post.class);
+                    System.out.println(post);
+
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+
+            });*/
+
+            Map<String, Object> hopperUpdates = new HashMap<>();
+            hopperUpdates.put("uf", uf);
+            hopperUpdates.put("cidade", cidade);
+            hopperUpdates.put("bairro", bairro);
+            hopperUpdates.put("numero", numero);
+            hopperUpdates.put("logradouro", logradouro);
+            hopperUpdates.put("cnpj", cnpj);
+            hopperUpdates.put("razao", razao);
+            refIdEmitente.updateChildren(hopperUpdates, new DatabaseReference.CompletionListener(){
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        alert("Informaçõe não salva " + databaseError.getMessage());
+                    } else {
+                        alert("Informações salva");
+                    }
+                }
+
+            });
+            /*
+            refIdEmitente.child("uf").setValue(uf);
+            refIdEmitente.child("cidade").setValue(cidade);
+            refIdEmitente.child("bairro").setValue(bairro);
+            refIdEmitente.child("numero").setValue(numero);
+            refIdEmitente.child("logradouro").setValue(logradouro);
+            refIdEmitente.child("cnpj").setValue(cnpj);
+            refIdEmitente.child("razao").setValue(razao);
+
+*/
+
+
+
+
 
 
         } catch (Exception e) {
@@ -308,6 +389,8 @@ public class MainActivity extends AppCompatActivity {
             URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertProd.php?desc=" + desc + "&cod=" + cod + "&val=" + val + "&dt=" + data + "&hr=" + hora + "&cnpj=" + cnpjSelect);
             Request request = new Request.Builder().url(url).build();
             Response response = client.newCall(request).execute();
+
+
 
         } catch (Exception e) {
             e.printStackTrace();

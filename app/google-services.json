@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "992150596628",
+    "firebase_url": "https://pryce-e057b.firebaseio.com",
+    "project_id": "pryce-e057b",
+    "storage_bucket": "pryce-e057b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:992150596628:android:6724feea3b783555",
+        "android_client_info": {
+          "package_name": "pryce.com.pryce"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "992150596628-bdpnvoqa0b0tnfj4fgs0k4q13inq3mu2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pryce.com.pryce",
+            "certificate_hash": "1544b80aec110688e260b4671d4eb1cc05586575"
+          }
+        },
+        {
+          "client_id": "992150596628-knk590r48g95ltifh2a1ba76p7eqhno3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcOhGmlR5ODRrNeMmR-9MGkPPE1BSzSZ0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "992150596628-knk590r48g95ltifh2a1ba76p7eqhno3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
