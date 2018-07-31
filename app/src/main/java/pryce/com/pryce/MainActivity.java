@@ -15,6 +15,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
             if (result.getContents() != null) {
-                alert(result.getContents());
+                //alert(result.getContents());
                 qrcode = result.getContents();
                 qrcode = qrcode.substring(qrcode.indexOf(".") + 1, qrcode.indexOf("&n"));
                 qrcode = "http://" + qrcode + "&nVersao=100&tpAmb=1";
@@ -100,14 +101,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putString("cod", qrcode);
         MTask task = new MTask();
         task.execute(qrcode);
         super.onSaveInstanceState(savedInstanceState);
     }
-
 
     private void alert(String msg) {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
@@ -125,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
         carregarTxt(qrcode);
 
     }
-
 
     public class MTask extends AsyncTask<String, Long, String> {
 
@@ -236,82 +234,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static class Post {
-
-        public String author;
-        public String title;
-
-        public Post(String author, String title) {
-            // ...
-        }
-
-    }
-
-    public void insertEmitente(String razao, String cnpj, String logradouro, String numero, String bairro, String cidade, String uf) {
+   public void insertEmitente(String razao, String cnpj, String logradouro, String numero, String bairro, String cidade, String uf) {
         try {
-
-            OkHttpClient client = new OkHttpClient();
-            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?razao=" + razao + "&cnpj=" + cnpj + "&logradouro=" + logradouro + "&numero=" + numero + "&bairro=" + bairro + "&cidade=" + cidade + "&uf=" + uf);
-            Request request = new Request.Builder().url(url).build();
-            Response response = client.newCall(request).execute();
-
-            final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference("emitente");
-            DatabaseReference refIdEmitente = myRef.child(myRef.push().getKey());
-
-
-
-/*
-
-
-            myRef.addChildEventListener(new ValueEventListener(){
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Post post = dataSnapshot.getValue(Post.class);
-                    System.out.println(post);
-
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-
-            });*/
-
-            Map<String, Object> hopperUpdates = new HashMap<>();
-            hopperUpdates.put("uf", uf);
-            hopperUpdates.put("cidade", cidade);
-            hopperUpdates.put("bairro", bairro);
-            hopperUpdates.put("numero", numero);
-            hopperUpdates.put("logradouro", logradouro);
-            hopperUpdates.put("cnpj", cnpj);
-            hopperUpdates.put("razao", razao);
-            refIdEmitente.updateChildren(hopperUpdates, new DatabaseReference.CompletionListener(){
-                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                    if (databaseError != null) {
-                        alert("Informaçõe não salva " + databaseError.getMessage());
-                    } else {
-                        alert("Informações salva");
-                    }
-                }
-
-            });
-            /*
-            refIdEmitente.child("uf").setValue(uf);
-            refIdEmitente.child("cidade").setValue(cidade);
-            refIdEmitente.child("bairro").setValue(bairro);
-            refIdEmitente.child("numero").setValue(numero);
-            refIdEmitente.child("logradouro").setValue(logradouro);
-            refIdEmitente.child("cnpj").setValue(cnpj);
-            refIdEmitente.child("razao").setValue(razao);
-
-*/
-
-
-
-
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -323,11 +247,6 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(caminho.openStream()));
-
-            while (br.ready()) {
-                numeros.append(br.readLine()).append("\n");
-
-            }
 
 
             String minhaLinhaDaXexeca;
@@ -351,7 +270,9 @@ public class MainActivity extends AppCompatActivity {
                         if (numLinha == minhaLinha) {
 
                             descr = linha.substring(38, linha.indexOf("</span>"));
-                            cod = linha.substring(linha.indexOf(":") + 1, linha.indexOf(")</span>")).replace(" ", "");
+                            linha = linha.replaceAll(" ", "");
+                            cod = linha.substring(linha.indexOf(":") + 1, linha.length());
+                            cod = cod.substring(0, cod.indexOf(")"));
                             minhaLinha = minhaLinha + 6;
 
                         }
@@ -397,5 +318,46 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+
+    public class Emitente {
+
+
+        public String razao;
+        public String cnpj;
+        public String logradouro;
+        public String bairro;
+        public String numero;
+        public String cidade;
+        public String uf;
+
+
+        public Emitente() {
+
+            Query sql = mDatabase.child("Emitente").orderByChild("cnpj").equalTo(cnpj).limitToFirst(1);
+            sql.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    if (dataSnapshot.exists()) {
+                      /*  emitente = dataSnapshot.getValue(Emitente.class);
+                        alert(emitente.razao);*/
+                    } else {
+                        mDatabase.child("Emitente").child(mDatabase.child("Emitente").push().getKey()).setValue(this);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    carregarTxt("deu ruim");
+                }
+            });
+        }
+    }
+
+
+
 }
 
