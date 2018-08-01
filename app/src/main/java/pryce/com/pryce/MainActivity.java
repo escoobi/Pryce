@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     public static String val = null;
     public static String data = null;
     public static String hora = null;
+    private DatabaseReference mDatabase;
+
 
 
     @Override
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             qrcode = savedInstanceState.getString("cod");
 
         }
-
+        mDatabase = FirebaseDatabase.getInstance().getReference("Emitente");
 
 
     }
@@ -218,7 +220,13 @@ public class MainActivity extends AppCompatActivity {
                 nLinha++;
                 if (razao != null && cnpj != null && logradouro != null && numero != null && bairro != null
                         && cidade != null && uf != null) {
-                    insertEmitente(razao.toUpperCase(), cnpjSelect, logradouro.toUpperCase(), numero, bairro.toUpperCase(), cidade.toUpperCase(), uf.toUpperCase());
+                    //insertEmitente(razao.toUpperCase(), cnpjSelect, logradouro.toUpperCase(), numero, bairro.toUpperCase(), cidade.toUpperCase(), uf.toUpperCase());
+                   // insertEmitente();
+
+
+                    gravarEmitente(razao, cnpj, logradouro, bairro, numero,cidade, uf);
+
+
                     razao = null;
                     cnpj = null;
                     logradouro = null;
@@ -234,13 +242,69 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-   public void insertEmitente(String razao, String cnpj, String logradouro, String numero, String bairro, String cidade, String uf) {
-        try {
+    public static class Emitente {
+        String razao;
+        String cnpj;
+        String logradouro;
+        String bairro;
+        String numero;
+        String cidade;
+        String uf;
 
-        } catch (Exception e) {
-            e.printStackTrace();
+
+
+        public Emitente(String razao, String cnpj, String logradouro, String bairro, String numero, String cidade, String uf) {
+            this.razao = razao;
+            this.cnpj = cnpj;
+            this.logradouro = logradouro;
+            this.bairro = bairro;
+            this.numero = numero;
+            this.cidade = cidade;
+            this.uf = uf;
         }
+
+        public Emitente(){}
+
+        public Map<String, Object> toMap() {
+            HashMap<String, Object> result = new HashMap<>();
+            result.put("razao", razao);
+            result.put("cnpj", cnpj);
+            result.put("logradouro", logradouro);
+            result.put("bairro", bairro);
+            result.put("numero", numero);
+            result.put("cidade", cidade);
+            result.put("uf", uf);
+
+            return result;
+        }
+
     }
+
+
+   private void gravarEmitente (final String razao, final String cnpj, final String logradouro, final String bairro, final String numero, final String cidade, final String uf){
+
+        mDatabase.orderByChild("cnpj").equalTo(cnpj).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Emitente emitente = dataSnapshot.getValue(Emitente.class);
+
+                if (dataSnapshot.exists()) {
+
+                   // System.out.println(emitente.toMap().getClass());
+                }
+                else {
+                    emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf);
+                    mDatabase.push().setValue(emitente);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+   }
 
     public void obterItens(URL caminho) throws IOException {
         StringBuilder numeros = new StringBuilder();
@@ -320,22 +384,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-
-    public class Emitente {
 
 
-        public String razao;
-        public String cnpj;
-        public String logradouro;
-        public String bairro;
-        public String numero;
-        public String cidade;
-        public String uf;
 
 
-        public Emitente() {
 
+
+/*
+ private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
             Query sql = mDatabase.child("Emitente").orderByChild("cnpj").equalTo(cnpj).limitToFirst(1);
             sql.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -343,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if (dataSnapshot.exists()) {
                       /*  emitente = dataSnapshot.getValue(Emitente.class);
-                        alert(emitente.razao);*/
+                        alert(emitente.razao);
                     } else {
                         mDatabase.child("Emitente").child(mDatabase.child("Emitente").push().getKey()).setValue(this);
                     }
@@ -356,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
-
+        */
 
 
 }
