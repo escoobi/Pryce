@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
                 String key = null;
                 for (DataSnapshot snapshot:dataSnapshot.getChildren()) {
                     key = snapshot.getKey();
-                    
+
                 }
                     if (dataSnapshot.exists()) {
 
