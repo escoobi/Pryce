@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.StandardSocketOptions;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -288,15 +289,31 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Emitente emitente = dataSnapshot.getValue(Emitente.class);
 
-                if (dataSnapshot.exists()) {
-
-                   // System.out.println(emitente.toMap().getClass());
+                String key = null;
+                for (DataSnapshot snapshot:dataSnapshot.getChildren()) {
+                    key = snapshot.getKey();
+                    
                 }
-                else {
-                    emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf);
-                    mDatabase.push().setValue(emitente);
+                    if (dataSnapshot.exists()) {
 
-                }
+                        Map<String, Object> emitenteUpdates = new HashMap<>();
+                        emitenteUpdates.put(key + "/bairro", bairro);
+                        emitenteUpdates.put(key + "/cidade", cidade);
+                        emitenteUpdates.put(key + "/cnpj", cnpj);
+                        emitenteUpdates.put(key + "/logradouro", logradouro);
+                        emitenteUpdates.put(key + "/numero", numero);
+                        emitenteUpdates.put(key + "/razao", razao);
+                        emitenteUpdates.put(key + "/uf", uf);
+
+                        mDatabase.updateChildren(emitenteUpdates);
+
+
+                    } else {
+                        emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf);
+                        mDatabase.push().setValue(emitente);
+
+                    }
+
             }
 
             @Override
