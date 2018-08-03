@@ -15,10 +15,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 
 import java.io.BufferedReader;
 
@@ -59,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     public static String val = null;
     public static String data = null;
     public static String hora = null;
+    public static String lat = null;
+    public static String log = null;
     private DatabaseReference mDatabase;
 
 
@@ -219,13 +224,13 @@ public class MainActivity extends AppCompatActivity {
                     hora = linha.substring(90, 98);
                 }
                 nLinha++;
+
                 if (razao != null && cnpj != null && logradouro != null && numero != null && bairro != null
                         && cidade != null && uf != null) {
-                    //insertEmitente(razao.toUpperCase(), cnpjSelect, logradouro.toUpperCase(), numero, bairro.toUpperCase(), cidade.toUpperCase(), uf.toUpperCase());
-                   // insertEmitente();
-
-
-                    gravarEmitente(razao, cnpj, logradouro, bairro, numero,cidade, uf);
+                    //obter lat e log via endereço
+                    obterLatLog(logradouro, bairro, numero, cidade, uf);
+                  //inserir e atualizar emitente
+                    gravarEmitente(razao, cnpj, logradouro, bairro, numero,cidade, uf, lat, log);
 
 
                     razao = null;
@@ -235,11 +240,56 @@ public class MainActivity extends AppCompatActivity {
                     bairro = null;
                     cidade = null;
                     uf = null;
+                    lat = null;
+                    log = null;
                 }
             }
             scan.close();
             br.close();
         } catch (Exception localException) {
+        }
+    }
+
+    public void obterLatLog(String logradouro, String bairro, String numero, String cidade, String uf){
+        StringBuilder numeros = new StringBuilder();
+
+
+        try {
+            URL url = new URL("http://maps.googleapis.com/maps/api/geocode/json?address="+logradouro.replaceAll(" ", "+")+","+numero+","+bairro.replaceAll(" ", "+")+","+cidade.replaceAll(" ", "+")+","+uf);
+            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+            String minhaLinha;
+            while ((minhaLinha = br.readLine()) != null) {
+                numeros.append(minhaLinha).append("\n");
+
+            }
+
+
+
+
+            Scanner scan = new Scanner(numeros.toString());
+
+            while (scan.hasNextLine()) {
+                String linha = scan.nextLine();
+                // Pegar lat e log
+
+                if (linha.contains("\"lat\" : ")) {
+                    linha = linha.substring(linha.indexOf("-"), linha.indexOf(","));
+                    lat = linha;
+
+                }
+                if (linha.contains("\"lng\" : ")) {
+                    linha = linha.substring(linha.indexOf("-"), linha.length());
+                    log = linha;
+                }
+                if(log != null && lat != null){
+                    break;
+                }
+            }
+            scan.close();
+
+        }
+        catch (Exception localException){
+
         }
     }
 
@@ -251,10 +301,12 @@ public class MainActivity extends AppCompatActivity {
         String numero;
         String cidade;
         String uf;
+        String lat;
+        String log;
 
 
 
-        public Emitente(String razao, String cnpj, String logradouro, String bairro, String numero, String cidade, String uf) {
+        public Emitente(String razao, String cnpj, String logradouro, String bairro, String numero, String cidade, String uf, String lat, String log) {
             this.razao = razao;
             this.cnpj = cnpj;
             this.logradouro = logradouro;
@@ -262,6 +314,8 @@ public class MainActivity extends AppCompatActivity {
             this.numero = numero;
             this.cidade = cidade;
             this.uf = uf;
+            this.lat = lat;
+            this.log = log;
         }
 
         public Emitente(){}
@@ -275,14 +329,15 @@ public class MainActivity extends AppCompatActivity {
             result.put("numero", numero);
             result.put("cidade", cidade);
             result.put("uf", uf);
+            result.put("lat", lat);
+            result.put("log", log);
 
             return result;
         }
 
     }
 
-
-   private void gravarEmitente (final String razao, final String cnpj, final String logradouro, final String bairro, final String numero, final String cidade, final String uf){
+    private void gravarEmitente (final String razao, final String cnpj, final String logradouro, final String bairro, final String numero, final String cidade, final String uf, final String lat, final String log){
 
         mDatabase.orderByChild("cnpj").equalTo(cnpj).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -304,12 +359,14 @@ public class MainActivity extends AppCompatActivity {
                         emitenteUpdates.put(key + "/numero", numero);
                         emitenteUpdates.put(key + "/razao", razao);
                         emitenteUpdates.put(key + "/uf", uf);
+                        emitenteUpdates.put(key + "/lat", lat);
+                        emitenteUpdates.put(key + "/log", log);
 
                         mDatabase.updateChildren(emitenteUpdates);
 
 
                     } else {
-                        emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf);
+                        emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log);
                         mDatabase.push().setValue(emitente);
 
                     }
@@ -399,38 +456,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
-
-
-
-
-
-
-
-/*
- private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-            Query sql = mDatabase.child("Emitente").orderByChild("cnpj").equalTo(cnpj).limitToFirst(1);
-            sql.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    if (dataSnapshot.exists()) {
-                      /*  emitente = dataSnapshot.getValue(Emitente.class);
-                        alert(emitente.razao);
-                    } else {
-                        mDatabase.child("Emitente").child(mDatabase.child("Emitente").push().getKey()).setValue(this);
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    carregarTxt("deu ruim");
-                }
-            });
-        }
-    }
-        */
-
 
 }
 
