@@ -6,9 +6,11 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Scanner;
 
+import static pryce.com.pryce.obterInfoEmitente.cnpjSelect;
 import static pryce.com.pryce.obterInfoEmitente.data;
 import static pryce.com.pryce.obterInfoEmitente.hora;
 import static pryce.com.pryce.obterInfoEmitente.qtditens;
+
 
 public class obterInfoProdutos {
     public static String descr = null;
@@ -64,7 +66,7 @@ public class obterInfoProdutos {
                 }
                 if (descr != null && cod != null && val != null) {
                     gravar gravarProdutos = new gravar();
-                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora);
+                    //gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect, key);
                     descr = null;
                     cod = null;
                     val = null;
@@ -74,7 +76,7 @@ public class obterInfoProdutos {
             }
             scan.close();
             br.close();
-            // talvez aqui grava produtos....
+
         } catch (Exception localException) {
         }
     }

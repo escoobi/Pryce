@@ -11,40 +11,44 @@ import java.util.Map;
 
 public class gravar {
 
-    private DatabaseReference mDatabase;
+    public String keyEmitente = null;
+    public String keyProduto = null;
+    private DatabaseReference mDatabaseEmitente;
+
+
 
     public void gravarEmitente(final String razao, final String cnpj, final String logradouro, final String bairro, final String numero, final String cidade, final String uf, final String lat, final String log){
 
-        mDatabase = FirebaseDatabase.getInstance().getReference("Emitente");
-        mDatabase.orderByChild("cnpj").equalTo(cnpj).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabaseEmitente = FirebaseDatabase.getInstance().getReference("Emitente");
+        mDatabaseEmitente.orderByChild("cnpj").equalTo(cnpj).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Emitente emitente = dataSnapshot.getValue(Emitente.class);
 
-                String key = null;
+
                 for (DataSnapshot snapshot:dataSnapshot.getChildren()) {
-                    key = snapshot.getKey();
+                    keyEmitente = snapshot.getKey();
 
                 }
                 if (dataSnapshot.exists()) {
 
                     Map<String, Object> emitenteUpdates = new HashMap<>();
-                    emitenteUpdates.put(key + "/bairro", bairro);
-                    emitenteUpdates.put(key + "/cidade", cidade);
-                    emitenteUpdates.put(key + "/cnpj", cnpj);
-                    emitenteUpdates.put(key + "/logradouro", logradouro);
-                    emitenteUpdates.put(key + "/numero", numero);
-                    emitenteUpdates.put(key + "/razao", razao);
-                    emitenteUpdates.put(key + "/uf", uf);
-                    emitenteUpdates.put(key + "/lat", lat);
-                    emitenteUpdates.put(key + "/log", log);
+                    emitenteUpdates.put(keyEmitente + "/bairro", bairro);
+                    emitenteUpdates.put(keyEmitente + "/cidade", cidade);
+                    emitenteUpdates.put(keyEmitente + "/cnpj", cnpj);
+                    emitenteUpdates.put(keyEmitente + "/logradouro", logradouro);
+                    emitenteUpdates.put(keyEmitente + "/numero", numero);
+                    emitenteUpdates.put(keyEmitente + "/razao", razao);
+                    emitenteUpdates.put(keyEmitente + "/uf", uf);
+                    emitenteUpdates.put(keyEmitente + "/lat", lat);
+                    emitenteUpdates.put(keyEmitente + "/log", log);
 
-                    mDatabase.updateChildren(emitenteUpdates);
+                    mDatabaseEmitente.updateChildren(emitenteUpdates);
 
 
                 } else {
                     emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log);
-                    mDatabase.push().setValue(emitente);
+                    mDatabaseEmitente.push().setValue(emitente);
 
                 }
 
@@ -57,35 +61,36 @@ public class gravar {
         });
     }
 
-    public void gravarProdutos(final String descricao, final String valor, final String codigo, final String data, final String hora){
+    public void gravarProdutos(final String descricao, final String valor, final String codigo, final String data, final String hora, final String cnpj, final String key){
 
-        mDatabase = FirebaseDatabase.getInstance().getReference("Produto");
-        mDatabase.orderByChild("descricao").equalTo(descricao).addListenerForSingleValueEvent(new ValueEventListener() {
+
+        mDatabaseEmitente = FirebaseDatabase.getInstance().getReference("Emitente/"+key);
+        mDatabaseEmitente.orderByChild("descricao").equalTo(descricao).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 Produtos produtos = dataSnapshot.getValue(Produtos.class);
 
 
-                String key = null;
+
                 for (DataSnapshot snapshot:dataSnapshot.getChildren()) {
-                    key = snapshot.getKey();
+                    keyProduto = snapshot.getKey();
 
                 }
                 if (dataSnapshot.exists()) {
 
                     Map<String, Object> produtosUpdates = new HashMap<>();
-                    produtosUpdates.put(key + "/descricao", descricao);
-                    produtosUpdates.put(key + "/valor", valor);
-                    produtosUpdates.put(key + "/codigo", codigo);
-                    produtosUpdates.put(key + "/data", data);
-                    produtosUpdates.put(key + "/hora", hora);
-                    mDatabase.updateChildren(produtosUpdates);
+                    produtosUpdates.put(keyProduto + "/descricao", descricao);
+                    produtosUpdates.put(keyProduto + "/valor", valor);
+                    produtosUpdates.put(keyProduto + "/codigo", codigo);
+                    produtosUpdates.put(keyProduto + "/data", data);
+                    produtosUpdates.put(keyProduto + "/hora", hora);
+                    mDatabaseEmitente.updateChildren(produtosUpdates);
 
 
                 } else {
                     produtos = new Produtos(descricao, valor, codigo, data, hora);
-                    mDatabase.push().setValue(produtos);
+                    mDatabaseEmitente.push().setValue(produtos);
 
                 }
 

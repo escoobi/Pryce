@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Produtos {
-    String descricao;
-    String valor;
-    String codigo;
-    String data;
-    String hora;
+    public String descricao;
+    public String valor;
+    public String codigo;
+    public String data;
+    public String hora;
 
     public Produtos(String descricao, String valor, String codigo, String data, String hora) {
         this.descricao = descricao;

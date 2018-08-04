@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Emitente {
-    String razao;
-    String cnpj;
-    String logradouro;
-    String bairro;
-    String numero;
-    String cidade;
-    String uf;
-    String lat;
-    String log;
+    public String razao;
+    public String cnpj;
+    public String logradouro;
+    public String bairro;
+    public String numero;
+    public String cidade;
+    public String uf;
+    public String lat;
+    public String log;
 
     public Emitente(String razao, String cnpj, String logradouro, String bairro, String numero, String cidade, String uf, String lat, String log) {
         this.razao = razao;
