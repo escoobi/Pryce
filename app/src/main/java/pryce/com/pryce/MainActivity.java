@@ -101,10 +101,18 @@ public class MainActivity extends AppCompatActivity {
             try {
                 url = new URL(qrcode);
                 if(qrcode.length() == 124) {
-                    obterInfoEmitente obterInfoEmitente = new obterInfoEmitente();
-                    obterInfoEmitente.obterEmitente(url);
-                    obterInfoProdutos ObterInfoProdutos = new obterInfoProdutos();
-                    ObterInfoProdutos.obterItens(url);
+                  //  obterInfoEmitente obterInfoEmitente = new obterInfoEmitente();
+                 //   obterInfoEmitente.obterEmitente(url);
+
+                    obterNfc infoNfc = new obterNfc();
+                    infoNfc.carregaNfc(url);
+                    //obterInfoEmitente.obterItens();
+
+
+                  //  obterInfoProdutos ObterInfoProdutos = new obterInfoProdutos();
+                  //  ObterInfoProdutos.obterItens(pryce.com.pryce.obterInfoEmitente.br);
+
+
                 }
                 else{
                     alert("Erro ao ler o QRCode.");

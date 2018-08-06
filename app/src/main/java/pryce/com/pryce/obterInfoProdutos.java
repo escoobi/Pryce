@@ -6,9 +6,10 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Scanner;
 
+
 import static pryce.com.pryce.obterInfoEmitente.cnpjSelect;
-import static pryce.com.pryce.obterInfoEmitente.data;
 import static pryce.com.pryce.obterInfoEmitente.hora;
+import static pryce.com.pryce.obterInfoEmitente.data;
 import static pryce.com.pryce.obterInfoEmitente.qtditens;
 
 
@@ -16,13 +17,14 @@ public class obterInfoProdutos {
     public static String descr = null;
     public static String cod = null;
     public static String val = null;
+    public String linha = null;
 
-    public void obterItens(URL caminho) throws IOException {
+    public void obterItens(BufferedReader br) throws IOException {
 
         StringBuilder numeros = new StringBuilder();
 
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(caminho.openStream()));
+           // BufferedReader br = new BufferedReader(new InputStreamReader(caminho.openStream()));
 
 
             String minhaLinhaDaXexeca;
@@ -38,7 +40,7 @@ public class obterInfoProdutos {
             int minhaLinhaValor = 159;
             int qtdTotal = minhaLinha + (6 * qtditens);
             while (scan.hasNextLine()) {
-                String linha = scan.nextLine();
+                linha = scan.nextLine();
 
                 for (int x = 0; x <= qtditens; x++) {
                     if (qtdTotal != numLinha) {
@@ -65,8 +67,8 @@ public class obterInfoProdutos {
 
                 }
                 if (descr != null && cod != null && val != null) {
-                    gravar gravarProdutos = new gravar();
-                    //gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect, key);
+                    gravarProdutos gravarProdutos = new gravarProdutos();
+                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect, gravarEmitente.keyEmitente);
                     descr = null;
                     cod = null;
                     val = null;

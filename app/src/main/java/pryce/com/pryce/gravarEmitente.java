@@ -9,10 +9,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public class gravar {
-
-    public String keyEmitente = null;
-    public String keyProduto = null;
+public class gravarEmitente {
+    public static String keyEmitente = null;
     private DatabaseReference mDatabaseEmitente;
 
 
@@ -60,47 +58,4 @@ public class gravar {
             }
         });
     }
-
-    public void gravarProdutos(final String descricao, final String valor, final String codigo, final String data, final String hora, final String cnpj, final String key){
-
-
-        mDatabaseEmitente = FirebaseDatabase.getInstance().getReference("Emitente/"+key);
-        mDatabaseEmitente.orderByChild("descricao").equalTo(descricao).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                Produtos produtos = dataSnapshot.getValue(Produtos.class);
-
-
-
-                for (DataSnapshot snapshot:dataSnapshot.getChildren()) {
-                    keyProduto = snapshot.getKey();
-
-                }
-                if (dataSnapshot.exists()) {
-
-                    Map<String, Object> produtosUpdates = new HashMap<>();
-                    produtosUpdates.put(keyProduto + "/descricao", descricao);
-                    produtosUpdates.put(keyProduto + "/valor", valor);
-                    produtosUpdates.put(keyProduto + "/codigo", codigo);
-                    produtosUpdates.put(keyProduto + "/data", data);
-                    produtosUpdates.put(keyProduto + "/hora", hora);
-                    mDatabaseEmitente.updateChildren(produtosUpdates);
-
-
-                } else {
-                    produtos = new Produtos(descricao, valor, codigo, data, hora);
-                    mDatabaseEmitente.push().setValue(produtos);
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
 }

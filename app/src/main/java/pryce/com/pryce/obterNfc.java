@@ -9,8 +9,7 @@ import java.util.Scanner;
 import static pryce.com.pryce.obterCordenadasEmitente.lat;
 import static pryce.com.pryce.obterCordenadasEmitente.log;
 
-
-public class obterInfoEmitente {
+public class obterNfc {
 
     public static String data = null;
     public static String hora = null;
@@ -31,10 +30,10 @@ public class obterInfoEmitente {
     public BufferedReader br;
 
 
-    public void obterEmitente(URL url) throws IOException {
+    public void carregaNfc(URL url) throws IOException {
         StringBuilder numeros = new StringBuilder();
         try {
-             br = new BufferedReader(new InputStreamReader(url.openStream()));
+            br = new BufferedReader(new InputStreamReader(url.openStream()));
             String minhaLinha;
             while ((minhaLinha = br.readLine()) != null) {
                 numeros.append(minhaLinha).append("\n");
@@ -103,10 +102,7 @@ public class obterInfoEmitente {
 
 
                     gravarEmitente gravar = new gravarEmitente();
-                    gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero,cidade, uf, lat, log);
-
-
-
+                    gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log);
 
 
                     razao = null;
@@ -136,10 +132,10 @@ public class obterInfoEmitente {
                         if (numLinha == totalLinha) {
 
                             descr = linha.substring(38, linha.indexOf("</span>"));
-                          //  linha = linha.replaceAll(" ", "");
+                            //  linha = linha.replaceAll(" ", "");
                             cod = linha.substring(linha.indexOf(":") + 1, linha.length());
                             cod = cod.substring(0, cod.indexOf(")"));
-                            minhaLinha = minhaLinha + 6;
+                            totalLinha = totalLinha + 6;
 
                         }
                         // Obter valor itens
@@ -154,12 +150,13 @@ public class obterInfoEmitente {
                     }
 
                 }
-                if (descr != null && cod != null && val != null) {
+                if (descr != null && cod != null && val != null && gravarEmitente.keyEmitente != null) {
                     gravarProdutos gravarProdutos = new gravarProdutos();
                     gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect, gravarEmitente.keyEmitente);
                     descr = null;
                     cod = null;
                     val = null;
+                    gravarEmitente.keyEmitente = null;
                 }
                 numLinha++;
 
@@ -173,67 +170,4 @@ public class obterInfoEmitente {
         }
     }
 
-    public void obterItens() throws IOException {
-
-        StringBuilder numeros = new StringBuilder();
-
-        try {
-
-
-
-            String minhaLinhaDaXexeca;
-            while ((minhaLinhaDaXexeca = br.readLine()) != null) {
-                numeros.append(minhaLinhaDaXexeca).append("\n");
-
-            }
-
-
-            Scanner scan = new Scanner(numeros.toString());
-            int numLinha = 0;
-            int minhaLinha = 157;
-            int minhaLinhaValor = 159;
-            int qtdTotal = minhaLinha + (6 * qtditens);
-            while (scan.hasNextLine()) {
-                linha = scan.nextLine();
-
-                for (int x = 0; x <= qtditens; x++) {
-                    if (qtdTotal != numLinha) {
-                        // Obter itens
-                        if (numLinha == minhaLinha) {
-
-                            descr = linha.substring(38, linha.indexOf("</span>"));
-                            linha = linha.replaceAll(" ", "");
-                            cod = linha.substring(linha.indexOf(":") + 1, linha.length());
-                            cod = cod.substring(0, cod.indexOf(")"));
-                            minhaLinha = minhaLinha + 6;
-
-                        }
-                        // Obter valor itens
-                        if (numLinha == minhaLinhaValor) {
-
-                            val = linha.substring(linha.indexOf("Vl. Unit.:</strong>&nbsp;") + 25, linha.indexOf("</span></td>"));
-                            val = val.replace(",", ".");
-                            minhaLinhaValor = minhaLinhaValor + 6;
-
-                        }
-
-                    }
-
-                }
-                if (descr != null && cod != null && val != null) {
-                    gravarProdutos gravarProdutos = new gravarProdutos();
-                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect, gravarEmitente.keyEmitente);
-                    descr = null;
-                    cod = null;
-                    val = null;
-                }
-                numLinha++;
-
-            }
-            scan.close();
-            br.close();
-
-        } catch (Exception localException) {
-        }
-    }
 }
