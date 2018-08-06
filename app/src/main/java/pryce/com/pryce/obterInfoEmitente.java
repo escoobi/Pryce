@@ -102,8 +102,8 @@ public class obterInfoEmitente {
                     //inserir e atualizar emitente
 
 
-                    gravarEmitente gravar = new gravarEmitente();
-                    gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero,cidade, uf, lat, log);
+                 //   gravarEmitente gravar = new gravarEmitente();
+                //    gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero,cidade, uf, lat, log);
 
 
 
@@ -156,7 +156,7 @@ public class obterInfoEmitente {
                 }
                 if (descr != null && cod != null && val != null) {
                     gravarProdutos gravarProdutos = new gravarProdutos();
-                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect, gravarEmitente.keyEmitente);
+                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect);
                     descr = null;
                     cod = null;
                     val = null;
@@ -222,7 +222,7 @@ public class obterInfoEmitente {
                 }
                 if (descr != null && cod != null && val != null) {
                     gravarProdutos gravarProdutos = new gravarProdutos();
-                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect, gravarEmitente.keyEmitente);
+                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect);
                     descr = null;
                     cod = null;
                     val = null;

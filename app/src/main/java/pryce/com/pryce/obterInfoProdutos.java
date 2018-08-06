@@ -34,24 +34,24 @@ public class obterInfoProdutos {
             }
 
 
-            Scanner scan = new Scanner(numeros.toString());
+            Scanner scanProdutos = new Scanner(numeros.toString());
             int numLinha = 0;
-            int minhaLinha = 157;
+            int produtoLinha = 157;
             int minhaLinhaValor = 159;
-            int qtdTotal = minhaLinha + (6 * qtditens);
-            while (scan.hasNextLine()) {
-                linha = scan.nextLine();
+            int qtdTotal = produtoLinha + (6 * qtditens);
+            while (scanProdutos.hasNextLine()) {
+                linha = scanProdutos.nextLine();
 
                 for (int x = 0; x <= qtditens; x++) {
                     if (qtdTotal != numLinha) {
                         // Obter itens
-                        if (numLinha == minhaLinha) {
+                        if (numLinha == produtoLinha) {
 
                             descr = linha.substring(38, linha.indexOf("</span>"));
                             linha = linha.replaceAll(" ", "");
                             cod = linha.substring(linha.indexOf(":") + 1, linha.length());
                             cod = cod.substring(0, cod.indexOf(")"));
-                            minhaLinha = minhaLinha + 6;
+                            produtoLinha = produtoLinha + 6;
 
                         }
                         // Obter valor itens
@@ -68,7 +68,7 @@ public class obterInfoProdutos {
                 }
                 if (descr != null && cod != null && val != null) {
                     gravarProdutos gravarProdutos = new gravarProdutos();
-                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect, gravarEmitente.keyEmitente);
+                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect);
                     descr = null;
                     cod = null;
                     val = null;
@@ -76,7 +76,7 @@ public class obterInfoProdutos {
                 numLinha++;
 
             }
-            scan.close();
+            scanProdutos.close();
             br.close();
 
         } catch (Exception localException) {

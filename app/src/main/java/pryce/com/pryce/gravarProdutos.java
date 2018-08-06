@@ -16,10 +16,10 @@ public class gravarProdutos {
     public String keyProduto = null;
     private DatabaseReference mDatabaseEmitente;
 
-    public void gravarProdutos(final String descricao, final String valor, final String codigo, final String data, final String hora, final String cnpj, final String key){
+    public void gravarProdutos(final String descricao, final String valor, final String codigo, final String data, final String hora, final String cnpj){
 
 
-        mDatabaseEmitente = FirebaseDatabase.getInstance().getReference("Emitente/"+keyEmitente+"/Produto");
+        mDatabaseEmitente = FirebaseDatabase.getInstance().getReference("Emitente/"+keyEmitente);
         mDatabaseEmitente.orderByChild("descricao").equalTo(descricao).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

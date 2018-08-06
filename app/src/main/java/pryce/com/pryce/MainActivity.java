@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -19,7 +20,7 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
     Button btnScan;
     String qrcode;
-
+    ProgressBar mProgressBar;
 
 
 
@@ -47,9 +48,15 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
     }
+
+    private void exibirProgress(boolean exibir) {
+        mProgressBar.setVisibility(exibir ? View.VISIBLE : View.GONE);
+    }
+
+
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -94,12 +101,14 @@ public class MainActivity extends AppCompatActivity {
     public class MTask extends AsyncTask<String, Long, String> {
 
 
+
         @Override
         protected String doInBackground(String... urls) {
 
             URL url = null;
             try {
                 url = new URL(qrcode);
+
                 if(qrcode.length() == 124) {
                   //  obterInfoEmitente obterInfoEmitente = new obterInfoEmitente();
                  //   obterInfoEmitente.obterEmitente(url);
@@ -126,8 +135,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        protected void onPostExecute(String resultValue) {
-        }
     }
 
 

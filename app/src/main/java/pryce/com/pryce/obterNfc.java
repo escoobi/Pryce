@@ -1,5 +1,7 @@
 package pryce.com.pryce;
 
+import android.widget.ProgressBar;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,6 +10,10 @@ import java.util.Scanner;
 
 import static pryce.com.pryce.obterCordenadasEmitente.lat;
 import static pryce.com.pryce.obterCordenadasEmitente.log;
+import static pryce.com.pryce.obterInfoEmitente.cnpjSelect;
+import static pryce.com.pryce.obterInfoEmitente.data;
+import static pryce.com.pryce.obterInfoEmitente.hora;
+import static pryce.com.pryce.obterInfoEmitente.qtditens;
 
 public class obterNfc {
 
@@ -28,6 +34,8 @@ public class obterNfc {
     public static String cod = null;
     public static String val = null;
     public BufferedReader br;
+
+
 
 
     public void carregaNfc(URL url) throws IOException {
@@ -91,51 +99,51 @@ public class obterNfc {
                     data = data.replace("/", ".");
                     hora = linha.substring(90, 98);
                 }
+
                 nLinha++;
-
-                if (razao != null && cnpj != null && logradouro != null && numero != null && bairro != null
-                        && cidade != null && uf != null) {
-                    //obter lat e log via endereço
-                    obterCordenadasEmitente obterCordenadasEmitente = new obterCordenadasEmitente();
-                    obterCordenadasEmitente.obterLatLog(logradouro, bairro, numero, cidade, uf);
-                    //inserir e atualizar emitente
-
-
-                    gravarEmitente gravar = new gravarEmitente();
-                    gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log);
-
-
-                    razao = null;
-                    cnpj = null;
-                    logradouro = null;
-                    numero = null;
-                    bairro = null;
-                    cidade = null;
-                    uf = null;
-                    data = null;
-                    hora = null;
-                    lat = null;
-                    log = null;
-                }
             }
-            int numLinha = 0;
-            int totalLinha = 157;
-            int minhaLinhaValor = 159;
-            int qtdTotal = totalLinha + (6 * qtditens);
+            if (razao != null && cnpj != null && logradouro != null && numero != null && bairro != null && cidade != null && uf != null) {
+
+                obterCordenadasEmitente obterCordenadasEmitente = new obterCordenadasEmitente();
+                obterCordenadasEmitente.obterLatLog(logradouro, bairro, numero, cidade, uf);
+
+                gravarEmitente gravar = new gravarEmitente();
+                gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log, data, hora);
+
+
+                razao = null;
+                cnpj = null;
+                logradouro = null;
+                numero = null;
+                bairro = null;
+                cidade = null;
+                uf = null;
+                data = null;
+                hora = null;
+                lat = null;
+                log = null;
+
+            }
+            scan.close();
+
             Scanner scanProdutos = new Scanner(numeros.toString());
+            int numLinha = 0;
+            int produtoLinha = 157;
+            int minhaLinhaValor = 159;
+            int qtdTotal = produtoLinha + (6 * qtditens);
             while (scanProdutos.hasNextLine()) {
                 linha = scanProdutos.nextLine();
 
                 for (int x = 0; x <= qtditens; x++) {
                     if (qtdTotal != numLinha) {
                         // Obter itens
-                        if (numLinha == totalLinha) {
+                        if (numLinha == produtoLinha) {
 
                             descr = linha.substring(38, linha.indexOf("</span>"));
-                            //  linha = linha.replaceAll(" ", "");
+                            linha = linha.replaceAll(" ", "");
                             cod = linha.substring(linha.indexOf(":") + 1, linha.length());
                             cod = cod.substring(0, cod.indexOf(")"));
-                            totalLinha = totalLinha + 6;
+                            produtoLinha = produtoLinha + 6;
 
                         }
                         // Obter valor itens
@@ -150,19 +158,17 @@ public class obterNfc {
                     }
 
                 }
-                if (descr != null && cod != null && val != null && gravarEmitente.keyEmitente != null) {
+                if (descr != null && cod != null && val != null) {
                     gravarProdutos gravarProdutos = new gravarProdutos();
-                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect, gravarEmitente.keyEmitente);
+                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect);
                     descr = null;
                     cod = null;
                     val = null;
-                    gravarEmitente.keyEmitente = null;
                 }
                 numLinha++;
 
             }
             scanProdutos.close();
-            scan.close();
 
             br.close();
 

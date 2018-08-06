@@ -13,8 +13,10 @@ public class Emitente {
     public String uf;
     public String lat;
     public String log;
+    public String data;
+    public String hora;
 
-    public Emitente(String razao, String cnpj, String logradouro, String bairro, String numero, String cidade, String uf, String lat, String log) {
+    public Emitente(String razao, String cnpj, String logradouro, String bairro, String numero, String cidade, String uf, String lat, String log, String data, String hora) {
         this.razao = razao;
         this.cnpj = cnpj;
         this.logradouro = logradouro;
@@ -24,6 +26,8 @@ public class Emitente {
         this.uf = uf;
         this.lat = lat;
         this.log = log;
+        this.data = data;
+        this.hora = hora;
     }
 
     public Emitente(){}
@@ -39,6 +43,8 @@ public class Emitente {
         result.put("uf", uf);
         result.put("lat", lat);
         result.put("log", log);
+        result.put("data", data);
+        result.put("hora", hora);
 
         return result;
     }
