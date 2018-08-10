@@ -9,6 +9,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import static pryce.com.pryce.obterProdutos.cnpj;
+import static pryce.com.pryce.obterNfc.hora;
+import static pryce.com.pryce.obterNfc.data;
+import static pryce.com.pryce.obterProdutos.cod;
+import static pryce.com.pryce.obterProdutos.descr;
+import static pryce.com.pryce.obterProdutos.val;
 
 
 public class gravarProdutos {
@@ -32,6 +38,8 @@ public class gravarProdutos {
                     keyEmitente = snapshot.getKey();
 
                 }
+
+                gravarProdutos(descr, val, cod, data, hora, cnpj);
             }
 
             @Override
@@ -72,6 +80,7 @@ public class gravarProdutos {
 
 
                     } else {
+
                         produtos = new Produtos(descricao, valor, codigo, data, hora);
                         mDatabaseProtudo.push().setValue(produtos);
 

@@ -1,7 +1,5 @@
 package pryce.com.pryce;
 
-import android.widget.ProgressBar;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +15,7 @@ public class obterNfc {
     public static String data = null;
     public static String hora = null;
     public static String cnpjSelect = null;
-    public static int qtditens = 0;
+
     public static String razao = null;
     public static String cnpj = null;
     public static String logradouro = null;
@@ -27,9 +25,9 @@ public class obterNfc {
     public static String uf = null;
     public String linha = null;
 
-    public static String descr = null;
+    /*public static String descr = null;
     public static String cod = null;
-    public static String val = null;
+    public static String val = null;*/
     public BufferedReader br;
 
 
@@ -85,11 +83,7 @@ public class obterNfc {
                     linha = linha.substring(2, linha.indexOf("</"));
                     uf = linha;
                 }
-                // Pegar qtd itens
-                if (linha.contains("Qtd. total de itens:")) {
-                    linha = linha.substring(59, linha.indexOf("</span>"));
-                    qtditens = Integer.parseInt(linha);
-                }
+
                 // Pegar data emissão
                 if (linha.contains("Protocolo de Autoriza")) {
                     data = linha.substring(79, 89);
@@ -108,7 +102,7 @@ public class obterNfc {
 
             }
             scan.close();
-
+/*
             Scanner scanProdutos = new Scanner(numeros.toString());
             int numLinha = 0;
             int produtoLinha = 157;
@@ -140,13 +134,15 @@ public class obterNfc {
 
                     }
 
+                    gravarProdutos gravarEssaBuceta = new gravarProdutos();
+                    gravarEssaBuceta.obterKeyEmitente(cnpj);
                 }
 
                 numLinha++;
 
             }
             scanProdutos.close();
-
+*/
             br.close();
 
         } catch (Exception localException) {

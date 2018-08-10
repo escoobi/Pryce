@@ -16,23 +16,15 @@ import com.google.zxing.integration.android.IntentResult;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static java.lang.Thread.sleep;
-import static pryce.com.pryce.gravarEmitente.keyEmitente;
 import static pryce.com.pryce.obterCordenadasEmitente.lat;
 import static pryce.com.pryce.obterCordenadasEmitente.log;
 import static pryce.com.pryce.obterNfc.bairro;
 import static pryce.com.pryce.obterNfc.cidade;
 import static pryce.com.pryce.obterNfc.cnpj;
-import static pryce.com.pryce.obterNfc.cnpjSelect;
-import static pryce.com.pryce.obterNfc.cod;
-import static pryce.com.pryce.obterNfc.descr;
-import static pryce.com.pryce.obterNfc.hora;
 import static pryce.com.pryce.obterNfc.logradouro;
 import static pryce.com.pryce.obterNfc.numero;
 import static pryce.com.pryce.obterNfc.razao;
 import static pryce.com.pryce.obterNfc.uf;
-import static pryce.com.pryce.obterNfc.data;
-import static pryce.com.pryce.obterNfc.val;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -82,6 +74,14 @@ public class MainActivity extends AppCompatActivity {
                 qrcode = result.getContents();
                 qrcode = qrcode.substring(qrcode.indexOf(".") + 1, qrcode.indexOf("&n"));
                 qrcode = "http://" + qrcode + "&nVersao=100&tpAmb=1";
+
+                carregarTxt(qrcode);
+                MTask task = new MTask();
+                task.execute(qrcode);
+
+                MTaskProduto produtoTask = new MTaskProduto();
+                produtoTask.execute(qrcode);
+
             } else {
                 alert("Leitura cancelada.");
             }
@@ -109,15 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void onResume() {
-        super.onResume();
-        carregarTxt(qrcode);
-        MTask task = new MTask();
-        task.execute(qrcode);
-
-    }
-
-    public class MTask extends AsyncTask<String, Long, String> {
+        public class MTask extends AsyncTask<String, Long, String> {
 
         @Override
         protected void onPreExecute() {
@@ -153,27 +145,51 @@ public class MainActivity extends AppCompatActivity {
             exibirProgress(false);
 
             gravarEmitente gravar = new gravarEmitente();
-            gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log, data, hora);
+            gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log);
 
-            gravarProdutos gravarProdutos = new gravarProdutos();
-            carregarTxt(gravarProdutos.obterKeyEmitente(cnpj));
-            gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect);
+        }
 
-            razao = null;
-            cnpj = null;
-            logradouro = null;
-            bairro = null;
-            cidade = null;
-            uf = null;
-            lat = null;
-            log = null;
-            data = null;
-            hora = null;
-            descr = null;
-            val = null;
-            cod = null;
-            cnpjSelect = null;
-            keyEmitente = null;
+    }
+
+    public class MTaskProduto extends AsyncTask<String, Long, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            exibirProgress(true);
+        }
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            URL url = null;
+            try {
+                url = new URL(qrcode);
+
+                if(qrcode.length() == 124) {
+                   obterProdutos ch = new obterProdutos();
+                   ch.carregaProdutos(url);
+                }
+                else{
+                    alert("Erro ao ler o QRCode.");
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "Carregado";
+        }
+
+        @Override
+        protected void onPostExecute(String string) {
+            super.onPostExecute(string);
+            exibirProgress(false);
+
+            gravarProdutos produtos = new gravarProdutos();
+            produtos.obterKeyEmitente(cnpj);
+
+
         }
 
     }
