@@ -50,6 +50,7 @@ public class gravarEmitente {
                     emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log, data, hora);
                     mDatabaseEmitente.push().setValue(emitente);
 
+
                 }
 
             }

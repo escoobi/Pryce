@@ -9,46 +9,29 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import static pryce.com.pryce.gravarEmitente.keyEmitente;
+
 
 public class gravarProdutos {
 
     public String keyProduto = null;
+    public String keyEmitente = null;
+    private DatabaseReference mDatabaseProtudo;
     private DatabaseReference mDatabaseEmitente;
 
-    public void gravarProdutos(final String descricao, final String valor, final String codigo, final String data, final String hora, final String cnpj){
 
 
-        mDatabaseEmitente = FirebaseDatabase.getInstance().getReference("Emitente/"+keyEmitente);
-        mDatabaseEmitente.orderByChild("descricao").equalTo(descricao).addListenerForSingleValueEvent(new ValueEventListener() {
+    public String obterKeyEmitente (final String cnpj){
+
+        mDatabaseEmitente = FirebaseDatabase.getInstance().getReference("Emitente");
+        mDatabaseEmitente.orderByChild("cnpj").equalTo(cnpj).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                Produtos produtos = dataSnapshot.getValue(Produtos.class);
-
-
-
+                Emitente emitente = dataSnapshot.getValue(Emitente.class);
                 for (DataSnapshot snapshot:dataSnapshot.getChildren()) {
-                    keyProduto = snapshot.getKey();
+                    keyEmitente = snapshot.getKey();
 
                 }
-                if (dataSnapshot.exists()) {
-
-                    Map<String, Object> produtosUpdates = new HashMap<>();
-                    produtosUpdates.put(keyProduto + "/descricao", descricao);
-                    produtosUpdates.put(keyProduto + "/valor", valor);
-                    produtosUpdates.put(keyProduto + "/codigo", codigo);
-                    produtosUpdates.put(keyProduto + "/data", data);
-                    produtosUpdates.put(keyProduto + "/hora", hora);
-                    mDatabaseEmitente.updateChildren(produtosUpdates);
-
-
-                } else {
-                    produtos = new Produtos(descricao, valor, codigo, data, hora);
-                    mDatabaseEmitente.push().setValue(produtos);
-
-                }
-
             }
 
             @Override
@@ -56,5 +39,52 @@ public class gravarProdutos {
 
             }
         });
+        return keyEmitente;
     }
+
+    public void gravarProdutos(final String descricao, final String valor, final String codigo, final String data, final String hora, final String cnpj){
+
+
+
+            mDatabaseProtudo = FirebaseDatabase.getInstance().getReference("Emitente/" + obterKeyEmitente(cnpj));
+            mDatabaseProtudo.orderByChild("descricao").equalTo(descricao).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    Produtos produtos = dataSnapshot.getValue(Produtos.class);
+
+
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        keyProduto = snapshot.getKey();
+
+                    }
+
+
+                    if (dataSnapshot.exists()) {
+
+                        Map<String, Object> produtosUpdates = new HashMap<>();
+                        produtosUpdates.put(keyProduto + "/descricao", descricao);
+                        produtosUpdates.put(keyProduto + "/valor", valor);
+                        produtosUpdates.put(keyProduto + "/codigo", codigo);
+                        produtosUpdates.put(keyProduto + "/data", data);
+                        produtosUpdates.put(keyProduto + "/hora", hora);
+                        mDatabaseProtudo.updateChildren(produtosUpdates);
+
+
+                    } else {
+                        produtos = new Produtos(descricao, valor, codigo, data, hora);
+                        mDatabaseProtudo.push().setValue(produtos);
+
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+
+
 }

@@ -2,6 +2,7 @@ package pryce.com.pryce;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +16,23 @@ import com.google.zxing.integration.android.IntentResult;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import static java.lang.Thread.sleep;
+import static pryce.com.pryce.gravarEmitente.keyEmitente;
+import static pryce.com.pryce.obterCordenadasEmitente.lat;
+import static pryce.com.pryce.obterCordenadasEmitente.log;
+import static pryce.com.pryce.obterNfc.bairro;
+import static pryce.com.pryce.obterNfc.cidade;
+import static pryce.com.pryce.obterNfc.cnpj;
+import static pryce.com.pryce.obterNfc.cnpjSelect;
+import static pryce.com.pryce.obterNfc.cod;
+import static pryce.com.pryce.obterNfc.descr;
+import static pryce.com.pryce.obterNfc.hora;
+import static pryce.com.pryce.obterNfc.logradouro;
+import static pryce.com.pryce.obterNfc.numero;
+import static pryce.com.pryce.obterNfc.razao;
+import static pryce.com.pryce.obterNfc.uf;
+import static pryce.com.pryce.obterNfc.data;
+import static pryce.com.pryce.obterNfc.val;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -22,17 +40,14 @@ public class MainActivity extends AppCompatActivity {
     String qrcode;
     ProgressBar mProgressBar;
 
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         btnScan = (Button) findViewById(R.id.btnQrCode);
+        mProgressBar = (ProgressBar) findViewById(R.id.barrinha);
         final Activity act = this;
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //bloqueia orientação de tela.
         btnScan.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 IntentIntegrator integrator = new IntentIntegrator(act);
@@ -48,14 +63,15 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+
 
     }
+
 
     private void exibirProgress(boolean exibir) {
         mProgressBar.setVisibility(exibir ? View.VISIBLE : View.GONE);
     }
-
 
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -76,8 +92,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putString("cod", qrcode);
-        MTask task = new MTask();
-        task.execute(qrcode);
+
+
+
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -95,12 +112,18 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         carregarTxt(qrcode);
+        MTask task = new MTask();
+        task.execute(qrcode);
 
     }
 
     public class MTask extends AsyncTask<String, Long, String> {
 
-
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            exibirProgress(true);
+        }
 
         @Override
         protected String doInBackground(String... urls) {
@@ -110,18 +133,8 @@ public class MainActivity extends AppCompatActivity {
                 url = new URL(qrcode);
 
                 if(qrcode.length() == 124) {
-                  //  obterInfoEmitente obterInfoEmitente = new obterInfoEmitente();
-                 //   obterInfoEmitente.obterEmitente(url);
-
                     obterNfc infoNfc = new obterNfc();
                     infoNfc.carregaNfc(url);
-                    //obterInfoEmitente.obterItens();
-
-
-                  //  obterInfoProdutos ObterInfoProdutos = new obterInfoProdutos();
-                  //  ObterInfoProdutos.obterItens(pryce.com.pryce.obterInfoEmitente.br);
-
-
                 }
                 else{
                     alert("Erro ao ler o QRCode.");
@@ -131,18 +144,39 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return null;
+            return "Carregado";
         }
 
+        @Override
+        protected void onPostExecute(String string) {
+            super.onPostExecute(string);
+            exibirProgress(false);
+
+            gravarEmitente gravar = new gravarEmitente();
+            gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log, data, hora);
+
+            gravarProdutos gravarProdutos = new gravarProdutos();
+            carregarTxt(gravarProdutos.obterKeyEmitente(cnpj));
+            gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect);
+
+            razao = null;
+            cnpj = null;
+            logradouro = null;
+            bairro = null;
+            cidade = null;
+            uf = null;
+            lat = null;
+            log = null;
+            data = null;
+            hora = null;
+            descr = null;
+            val = null;
+            cod = null;
+            cnpjSelect = null;
+            keyEmitente = null;
+        }
 
     }
 
-
-
-    /*
-
-
-
-*/
 }
 

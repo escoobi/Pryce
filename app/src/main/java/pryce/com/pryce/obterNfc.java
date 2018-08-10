@@ -10,10 +10,7 @@ import java.util.Scanner;
 
 import static pryce.com.pryce.obterCordenadasEmitente.lat;
 import static pryce.com.pryce.obterCordenadasEmitente.log;
-import static pryce.com.pryce.obterInfoEmitente.cnpjSelect;
-import static pryce.com.pryce.obterInfoEmitente.data;
-import static pryce.com.pryce.obterInfoEmitente.hora;
-import static pryce.com.pryce.obterInfoEmitente.qtditens;
+
 
 public class obterNfc {
 
@@ -104,24 +101,10 @@ public class obterNfc {
             }
             if (razao != null && cnpj != null && logradouro != null && numero != null && bairro != null && cidade != null && uf != null) {
 
-                obterCordenadasEmitente obterCordenadasEmitente = new obterCordenadasEmitente();
-                obterCordenadasEmitente.obterLatLog(logradouro, bairro, numero, cidade, uf);
-
-                gravarEmitente gravar = new gravarEmitente();
-                gravar.gravarEmitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log, data, hora);
-
-
-                razao = null;
-                cnpj = null;
-                logradouro = null;
-                numero = null;
-                bairro = null;
-                cidade = null;
-                uf = null;
-                data = null;
-                hora = null;
-                lat = null;
-                log = null;
+                while (lat == null & log == null) {
+                    obterCordenadasEmitente obterCordenadasEmitente = new obterCordenadasEmitente();
+                    obterCordenadasEmitente.obterLatLog(logradouro, bairro, numero, cidade, uf);
+                }
 
             }
             scan.close();
@@ -158,13 +141,7 @@ public class obterNfc {
                     }
 
                 }
-                if (descr != null && cod != null && val != null) {
-                    gravarProdutos gravarProdutos = new gravarProdutos();
-                    gravarProdutos.gravarProdutos(descr, val, cod, data, hora, cnpjSelect);
-                    descr = null;
-                    cod = null;
-                    val = null;
-                }
+
                 numLinha++;
 
             }
