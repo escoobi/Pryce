@@ -39,7 +39,7 @@ public class gravarProdutos {
 
                 }
 
-                gravarProdutos(descr, val, cod, data, hora, cnpj);
+                //gravarProdutos(descr, val, cod, data, hora, cnpj);
             }
 
             @Override
@@ -50,11 +50,11 @@ public class gravarProdutos {
         return keyEmitente;
     }
 
-    public void gravarProdutos(final String descricao, final String valor, final String codigo, final String data, final String hora, final String cnpj){
+    public void gravarProdutos(final String descricao, final String valor, final String codigo, final String data, final String hora, final String keyEmitente){
 
 
 
-            mDatabaseProtudo = FirebaseDatabase.getInstance().getReference("Emitente/" + obterKeyEmitente(cnpj));
+            mDatabaseProtudo = FirebaseDatabase.getInstance().getReference("Emitente/" + keyEmitente);
             mDatabaseProtudo.orderByChild("descricao").equalTo(descricao).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
