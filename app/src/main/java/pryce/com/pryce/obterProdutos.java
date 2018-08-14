@@ -76,8 +76,6 @@ public class obterProdutos {
 
 
             }
-            gravarProdutos gravarEssaBuceta = new gravarProdutos();
-            gravarEssaBuceta.obterKeyEmitente(cnpj);
             numLinha++;
             scanProdutos.close();
 

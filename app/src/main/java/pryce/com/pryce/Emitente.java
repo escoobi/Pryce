@@ -5,12 +5,20 @@ import java.util.Map;
 
 public class Emitente {
     public String razao;
+    public static String razaoSelect;
     public String cnpj;
+    public static  String cnpjSelect;
     public String logradouro;
+    public static String logradouroSelect;
     public String bairro;
+    public static String bairroSelect;
     public String numero;
+    public static String numeroSelect;
     public String cidade;
+    public static String cidadeSelect;
     public String uf;
+    public static String ufSelect;
+    public static String keyEmitente;
     public String lat;
     public String log;
 

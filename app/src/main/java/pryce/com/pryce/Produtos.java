@@ -5,10 +5,15 @@ import java.util.Map;
 
 public class Produtos {
     public String descricao;
+    public static String descricaoSelect;
     public String valor;
+    public static String valorSelect;
     public String codigo;
+    public static String codigoSelect;
     public String data;
+    public static String dataSelect;
     public String hora;
+    public static String horaSelect;
 
     public Produtos(String descricao, String valor, String codigo, String data, String hora) {
         this.descricao = descricao;

@@ -21,36 +21,40 @@ public class gravarEmitente {
         mDatabaseEmitente.orderByChild("cnpj").equalTo(cnpj).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
                 Emitente emitente = dataSnapshot.getValue(Emitente.class);
 
 
-                for (DataSnapshot snapshot:dataSnapshot.getChildren()) {
-                    keyEmitente = snapshot.getKey();
-
-                }
-                if (dataSnapshot.exists()) {
-
-                    Map<String, Object> emitenteUpdates = new HashMap<>();
-                    emitenteUpdates.put(keyEmitente + "/bairro", bairro);
-                    emitenteUpdates.put(keyEmitente + "/cidade", cidade);
-                    emitenteUpdates.put(keyEmitente + "/cnpj", cnpj);
-                    emitenteUpdates.put(keyEmitente + "/logradouro", logradouro);
-                    emitenteUpdates.put(keyEmitente + "/numero", numero);
-                    emitenteUpdates.put(keyEmitente + "/razao", razao);
-                    emitenteUpdates.put(keyEmitente + "/uf", uf);
-                    emitenteUpdates.put(keyEmitente + "/lat", lat);
-                    emitenteUpdates.put(keyEmitente + "/log", log);
 
 
-                    mDatabaseEmitente.updateChildren(emitenteUpdates);
+                    if (dataSnapshot.exists()) {
+
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            keyEmitente = snapshot.getKey();
+
+                        }
+
+                        Map<String, Object> emitenteUpdates = new HashMap<>();
+                        emitenteUpdates.put(keyEmitente + "/bairro", bairro);
+                        emitenteUpdates.put(keyEmitente + "/cidade", cidade);
+                        emitenteUpdates.put(keyEmitente + "/cnpj", cnpj);
+                        emitenteUpdates.put(keyEmitente + "/logradouro", logradouro);
+                        emitenteUpdates.put(keyEmitente + "/numero", numero);
+                        emitenteUpdates.put(keyEmitente + "/razao", razao);
+                        emitenteUpdates.put(keyEmitente + "/uf", uf);
+                        emitenteUpdates.put(keyEmitente + "/lat", lat);
+                        emitenteUpdates.put(keyEmitente + "/log", log);
 
 
-                } else {
-                    emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log);
-                    mDatabaseEmitente.push().setValue(emitente);
+                        mDatabaseEmitente.updateChildren(emitenteUpdates);
 
 
-                }
+
+                    } else {
+                        emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log);
+                        mDatabaseEmitente.push().setValue(emitente);
+                   }
+
 
             }
 
