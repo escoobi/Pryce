@@ -3,7 +3,6 @@ package pryce.com.pryce;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,21 +10,15 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import java.net.MalformedURLException;
-import java.net.URL;
-import static pryce.com.pryce.obterCordenadasEmitente.lat;
-import static pryce.com.pryce.obterCordenadasEmitente.log;
-
 
 
 public class MainActivity extends AppCompatActivity {
     Button btnScan;
-    static String qrcode;
+    public static String qrcode;
     static ProgressBar mProgressBar;
-
-
 
 
 
@@ -49,15 +42,10 @@ public class MainActivity extends AppCompatActivity {
         });
         if (savedInstanceState != null) {
             qrcode = savedInstanceState.getString("cod");
-
         }
-
-
-
-
     }
 
-    private static void exibirProgress(boolean exibir) {
+    public static void exibirProgress(boolean exibir) {
         mProgressBar.setVisibility(exibir ? View.VISIBLE : View.GONE);
     }
 
@@ -71,11 +59,8 @@ public class MainActivity extends AppCompatActivity {
                 qrcode = "http://" + qrcode + "&nVersao=100&tpAmb=1";
 
                 carregarTxt(qrcode);
-                MTask task = new MTask();
-                task.execute(qrcode);
-
-
-
+                Intent intent = new Intent(this, usandoIntentService.class);
+                startService(intent);
 
             } else {
                 alert("Leitura cancelada.");
@@ -93,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    private void alert(String msg) {
+    public void alert(String msg) {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 
     }
@@ -103,79 +88,5 @@ public class MainActivity extends AppCompatActivity {
         text.setText(texto);
 
     }
-
-    public class MTask extends AsyncTask<String, Long, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            exibirProgress(true);
-        }
-
-        @Override
-        protected String doInBackground(String... urls) {
-
-            URL url = null;
-            try {
-                url = new URL(qrcode);
-
-                if(qrcode.length() == 124) {
-                    obterNfc infoNfc = new obterNfc();
-                    infoNfc.carregaNfc(url);
-                }
-                else{
-                    alert("Erro ao ler o QRCode.");
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return "Carregado";
-        }
-
-        @Override
-        protected void onPostExecute(String string) {
-            super.onPostExecute(string);
-            exibirProgress(false);
-
-            gravarEmitente gravar = new gravarEmitente();
-            gravar.gravarEmitente(Emitente.razaoSelect, Emitente.cnpjSelect, Emitente.logradouroSelect, Emitente.bairroSelect, Emitente.numeroSelect, Emitente.cidadeSelect, Emitente.ufSelect, lat, log);
-
-            MainActivity.MTaskProduto sd = new MainActivity.MTaskProduto();
-            sd.execute();
-
-        }
-
-    }
-
-    public static class MTaskProduto extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            exibirProgress(true);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            gravarProdutos produtos = new gravarProdutos();
-            produtos.gravarProdutos(qrcode);
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void voids) {
-            super.onPostExecute(voids);
-            exibirProgress(false);
-
-
-
-
-        }
-
-    }
-
 }
 
