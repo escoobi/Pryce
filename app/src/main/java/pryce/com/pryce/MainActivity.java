@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.database.DatabaseReference;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import java.net.MalformedURLException;
@@ -22,12 +24,10 @@ import static pryce.com.pryce.obterCordenadasEmitente.log;
 
 public class MainActivity extends AppCompatActivity {
     Button btnScan;
-    static String qrcode;
+    public static String qrcode;
     static ProgressBar mProgressBar;
-
-
-
-
+    private DatabaseReference mDatabaseEmitente;
+    private DatabaseReference mDatabaseProtudo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
     }
 
     private static void exibirProgress(boolean exibir) {
@@ -67,18 +68,27 @@ public class MainActivity extends AppCompatActivity {
             if (result.getContents() != null) {
                 //alert(result.getContents());
                 qrcode = result.getContents();
-                qrcode = qrcode.substring(qrcode.indexOf(".") + 1, qrcode.indexOf("&n"));
-                qrcode = "http://" + qrcode + "&nVersao=100&tpAmb=1";
+                qrcode = qrcode.substring(qrcode.indexOf("=") + 1, qrcode.length());
+                qrcode = "http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?p=" + qrcode;
+                //qrcode = qrcode.substring(qrcode.indexOf(".") + 1, qrcode.indexOf("&n"));
+                //qrcode = "http://" + qrcode + "&nVersao=100&tpAmb=1";
 
-                carregarTxt(qrcode);
-                MTask task = new MTask();
-                task.execute(qrcode);
-
-
+                //carregarTxt(qrcode);
 
 
-            } else {
-                alert("Leitura cancelada.");
+                new MTask().execute(qrcode);
+
+
+                Intent intent = new Intent(this, Main2Activity.class);
+                startActivity(intent);
+
+                /*while (Emitente.keyEmitente != null) {
+                    new MTaskObterKeyEmitente().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+                    break;
+                }
+
+                } else {
+                alert("Leitura cancelada.");*/
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -98,84 +108,57 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void carregarTxt(String texto) {
+    public void carregarTxt(String texto) {
         TextView text = (TextView) findViewById(R.id.txtCod);
         text.setText(texto);
 
     }
 
-    public class MTask extends AsyncTask<String, Long, String> {
+    public class MTask extends AsyncTask<String, Integer, Boolean> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             exibirProgress(true);
+
         }
 
         @Override
-        protected String doInBackground(String... urls) {
+        protected Boolean doInBackground(String... urls) {
+
 
             URL url = null;
             try {
                 url = new URL(qrcode);
 
-                if(qrcode.length() == 124) {
+                if(qrcode.length() >= 124) {
                     obterNfc infoNfc = new obterNfc();
                     infoNfc.carregaNfc(url);
+                    gravarEmitente gravar = new gravarEmitente();
+                    gravar.gravarEmitente(Emitente.razaoSelect, Emitente.cnpjSelect, Emitente.logradouroSelect, Emitente.bairroSelect, Emitente.numeroSelect, Emitente.cidadeSelect, Emitente.ufSelect, lat, log);
+
+
                 }
                 else{
-                    alert("Erro ao ler o QRCode.");
+                    //   alert("Erro ao ler o QRCode.");
                 }
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return "Carregado";
+
+            return true;
         }
+
 
         @Override
-        protected void onPostExecute(String string) {
-            super.onPostExecute(string);
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
             exibirProgress(false);
-
-            gravarEmitente gravar = new gravarEmitente();
-            gravar.gravarEmitente(Emitente.razaoSelect, Emitente.cnpjSelect, Emitente.logradouroSelect, Emitente.bairroSelect, Emitente.numeroSelect, Emitente.cidadeSelect, Emitente.ufSelect, lat, log);
-
-            MainActivity.MTaskProduto sd = new MainActivity.MTaskProduto();
-            sd.execute();
-
         }
-
     }
 
-    public static class MTaskProduto extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            exibirProgress(true);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            gravarProdutos produtos = new gravarProdutos();
-            produtos.gravarProdutos(qrcode);
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void voids) {
-            super.onPostExecute(voids);
-            exibirProgress(false);
-
-
-
-
-        }
-
-    }
 
 }
 

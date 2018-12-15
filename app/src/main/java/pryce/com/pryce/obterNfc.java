@@ -13,6 +13,7 @@ public class obterNfc {
 
     public String linha = null;
     public BufferedReader br;
+    public static StringBuilder numerosPublicos;
 
 
 
@@ -21,16 +22,17 @@ public class obterNfc {
     public void carregaNfc(URL url) throws IOException {
         Emitente emitente = new Emitente();
         Produtos produto = new Produtos();
-        StringBuilder numeros = new StringBuilder();
+
         try {
             br = new BufferedReader(new InputStreamReader(url.openStream()));
             String minhaLinha;
+            StringBuilder numeros = new StringBuilder();
             while ((minhaLinha = br.readLine()) != null) {
                 numeros.append(minhaLinha).append("\n");
 
 
             }
-
+            numerosPublicos = numeros;
             Scanner scan = new Scanner(numeros.toString());
             int nLinha = 0;
             while (scan.hasNextLine()) {
@@ -78,22 +80,32 @@ public class obterNfc {
                     Emitente.ufSelect = emitente.uf;
                 }
 
-                // Pegar data emissão
+             /*   // Pegar data emissão
                 if (linha.contains("Protocolo de Autoriza")) {
                     produto.data = linha.substring(79, 89);
                     produto.data = produto.data.replace("/", ".");
                     produto.hora = linha.substring(90, 98);
                 }
 
+
+*/
+             //Pega Quantidade de Itens
+                    if (linha.contains("Qtd. total de itens:")) {
+                        linha = linha.substring(59, linha.indexOf("</span>"));
+                        Produtos.qtdProd = Integer.parseInt(linha);
+                    }
+
+
+
                 nLinha++;
             }
             if (emitente.razao != null && emitente.cnpj != null && emitente.logradouro != null && emitente.numero != null && emitente.bairro != null && emitente.cidade != null && emitente.uf != null) {
 
-                while (lat == null & log == null) {
+               /* while (lat == null & log == null) {
                     obterCordenadasEmitente obterCordenadasEmitente = new obterCordenadasEmitente();
                     obterCordenadasEmitente.obterLatLog(emitente.logradouro, emitente.bairro, emitente.numero, emitente.cidade, emitente.uf);
                 }
-
+                */
             }
             scan.close();
         } catch (Exception localException) {

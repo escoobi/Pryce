@@ -15,9 +15,10 @@ public class obterCordenadasEmitente {
     public void obterLatLog(String logradouro, String bairro, String numero, String cidade, String uf){
         StringBuilder numeros = new StringBuilder();
 
+        //http://maps.googleapis.com/maps/api/geocode/json?address=AV.+CAPITAO+SILVIO,3790,GRANDES+AREAS,ARIQUEMES,RO
 
         try {
-            URL url = new URL("http://maps.googleapis.com/maps/api/geocode/json?address="+logradouro.replaceAll(" ", "+")+","+numero+","+bairro.replaceAll(" ", "+")+","+cidade.replaceAll(" ", "+")+","+uf);
+            URL url = new URL("http://maps.googleapis.com/maps/api/geocode/json?address="+logradouro.replaceAll(" ", "+")+"+"+numero+"+"+bairro.replaceAll(" ", "+")+"+"+cidade.replaceAll(" ", "+")+"+"+uf);
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
             String minhaLinha;
             while ((minhaLinha = br.readLine()) != null) {

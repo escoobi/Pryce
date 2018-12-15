@@ -11,7 +11,9 @@ import java.util.Map;
 
 public class gravarEmitente {
     public static String keyEmitente = null;
+    public String keyProduto = null;
     private DatabaseReference mDatabaseEmitente;
+    private DatabaseReference mDatabaseProtudo;
 
 
 
@@ -53,6 +55,13 @@ public class gravarEmitente {
                     } else {
                         emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log);
                         mDatabaseEmitente.push().setValue(emitente);
+                        //*********************************************************************************
+
+                        //*********************************************************************************
+
+
+
+
                    }
 
 
@@ -63,5 +72,9 @@ public class gravarEmitente {
 
             }
         });
+
+
+
+
     }
 }
