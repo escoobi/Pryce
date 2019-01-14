@@ -9,18 +9,20 @@ import java.util.Scanner;
 
 public class obterCordenadasEmitente {
 
-    public static String lat = null;
-    public static String log = null;
+
 
     public void obterLatLog(String logradouro, String bairro, String numero, String cidade, String uf){
         StringBuilder numeros = new StringBuilder();
 
         //http://maps.googleapis.com/maps/api/geocode/json?address=AV.+CAPITAO+SILVIO,3790,GRANDES+AREAS,ARIQUEMES,RO
-
+        //https://maps.googleapis.com/maps/api/geocode/json?address=Rua+Gavi%C3%A3o+Real+4695+Ariquemes+RO&key=AIzaSyBTs9ShHOmdlmcFOqUAuxzes0nspUtUOW4
+//"https://maps.googleapis.com/maps/api/geocode/json?address="+logradouro.replaceAll(" ", "+")+"+"+numero+"+"+bairro.replaceAll(" ", "+")+"+"+cidade.replaceAll(" ", "+")+"+"+uf+"&key=AIzaSyBTs9ShHOmdlmcFOqUAuxzes0nspUtUOW4"
         try {
-            URL url = new URL("http://maps.googleapis.com/maps/api/geocode/json?address="+logradouro.replaceAll(" ", "+")+"+"+numero+"+"+bairro.replaceAll(" ", "+")+"+"+cidade.replaceAll(" ", "+")+"+"+uf);
+            URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address="+logradouro.replaceAll(" ", "+")+"+"+numero+"+"+bairro.replaceAll(" ", "+")+"+"+cidade.replaceAll(" ", "+")+"+"+uf+"&key=AIzaSyBTs9ShHOmdlmcFOqUAuxzes0nspUtUOW4");
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
             String minhaLinha;
+            Emitente.lat = null;
+            Emitente.log = null;
             while ((minhaLinha = br.readLine()) != null) {
                 numeros.append(minhaLinha).append("\n");
 
@@ -37,14 +39,14 @@ public class obterCordenadasEmitente {
 
                 if (linha.contains("\"lat\" : ")) {
                     linha = linha.substring(linha.indexOf("-"), linha.indexOf(","));
-                    lat = linha;
+                    Emitente.lat = linha;
 
                 }
                 if (linha.contains("\"lng\" : ")) {
                     linha = linha.substring(linha.indexOf("-"), linha.length());
-                    log = linha;
+                    Emitente.log = linha;
                 }
-                if(log != null && lat != null){
+                if(Emitente.log != null && Emitente.lat != null){
                     break;
                 }
             }
@@ -52,6 +54,8 @@ public class obterCordenadasEmitente {
 
         }
         catch (Exception localException){
+            System.out.println(localException.toString());
+
 
         }
     }

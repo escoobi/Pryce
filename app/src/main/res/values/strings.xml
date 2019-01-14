@@ -3,5 +3,10 @@
     <string name="qrcodeLer">Ler QRCode</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="caixa_procura">ex: Arroz, Leite, Carne, etc"</string>
+    <string name="btn_procurar">Procurar</string>
+    <string name="txt_procurar">O que procura?</string>
+    <string name="lbl_qrcode">QRCode</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="google_maps_key">AIzaSyBTs9ShHOmdlmcFOqUAuxzes0nspUtUOW4</string>
 </resources>

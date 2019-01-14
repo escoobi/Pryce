@@ -11,21 +11,25 @@ public class Produtos {
     public static String valorSelect;
     public String codigo;
     public static String codigoSelect;
+    public static String data;
+    public static String hora;
 
-    public Produtos(String descricao, String valor, String codigo) {
-        this.descricao = descricao;
+
+    public Produtos(String valor) {
         this.valor = valor;
-        this.codigo = codigo;
+
+
     }
 
     public Produtos(){};
 
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("descricao", descricao);
         result.put("valor", valor);
-        result.put("codigo", codigo);
+        result.put("data", data);
+        result.put("hora", hora);
         return result;
     }
 
 }
+

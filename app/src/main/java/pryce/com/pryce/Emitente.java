@@ -19,21 +19,20 @@ public class Emitente {
     public String uf;
     public static String ufSelect;
     public static String keyEmitente;
-    public String lat;
-    public String log;
+    public static String lat;
+    public static String log;
+    public static String qrcodeUrl;
 
 
-    public Emitente(String razao, String cnpj, String logradouro, String bairro, String numero, String cidade, String uf, String lat, String log) {
+
+    public Emitente(String razao, String cnpj, String logradouro, String bairro, String numero, String lat, String log) {
         this.razao = razao;
         this.cnpj = cnpj;
         this.logradouro = logradouro;
         this.bairro = bairro;
         this.numero = numero;
-        this.cidade = cidade;
-        this.uf = uf;
         this.lat = lat;
         this.log = log;
-
     }
 
     public Emitente(){}
@@ -45,10 +44,9 @@ public class Emitente {
         result.put("logradouro", logradouro);
         result.put("bairro", bairro);
         result.put("numero", numero);
-        result.put("cidade", cidade);
-        result.put("uf", uf);
         result.put("lat", lat);
         result.put("log", log);
+
         return result;
     }
 }

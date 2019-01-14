@@ -11,15 +11,14 @@ import java.util.Map;
 
 public class gravarEmitente {
     public static String keyEmitente = null;
-    public String keyProduto = null;
     private DatabaseReference mDatabaseEmitente;
-    private DatabaseReference mDatabaseProtudo;
 
 
 
-    public void gravarEmitente(final String razao, final String cnpj, final String logradouro, final String bairro, final String numero, final String cidade, final String uf, final String lat, final String log){
 
-        mDatabaseEmitente = FirebaseDatabase.getInstance().getReference("Emitente");
+    public void gravarEmitente(final String razao, final String cnpj, final String logradouro, final String bairro, final String numero, final String lat, final String log){
+
+        mDatabaseEmitente = FirebaseDatabase.getInstance().getReference();
         mDatabaseEmitente.orderByChild("cnpj").equalTo(cnpj).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -38,12 +37,10 @@ public class gravarEmitente {
 
                         Map<String, Object> emitenteUpdates = new HashMap<>();
                         emitenteUpdates.put(keyEmitente + "/bairro", bairro);
-                        emitenteUpdates.put(keyEmitente + "/cidade", cidade);
                         emitenteUpdates.put(keyEmitente + "/cnpj", cnpj);
                         emitenteUpdates.put(keyEmitente + "/logradouro", logradouro);
                         emitenteUpdates.put(keyEmitente + "/numero", numero);
                         emitenteUpdates.put(keyEmitente + "/razao", razao);
-                        emitenteUpdates.put(keyEmitente + "/uf", uf);
                         emitenteUpdates.put(keyEmitente + "/lat", lat);
                         emitenteUpdates.put(keyEmitente + "/log", log);
 
@@ -53,7 +50,7 @@ public class gravarEmitente {
 
 
                     } else {
-                        emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, cidade, uf, lat, log);
+                        emitente = new Emitente(razao, cnpj, logradouro, bairro, numero, lat, log);
                         mDatabaseEmitente.push().setValue(emitente);
                         //*********************************************************************************
 
