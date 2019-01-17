@@ -1,14 +1,10 @@
 package pryce.com.pryce;
 
-import android.text.Html;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 
@@ -24,11 +20,13 @@ public class obterNfc {
         Produtos produto = new Produtos();
         StringBuilder numeros = new StringBuilder();
         listaHtml = new ArrayList();
+
         try {
-            br = new BufferedReader(new InputStreamReader(url.openStream(), "ISO-8859-1"));
+            br = new BufferedReader(new InputStreamReader(url.openStream(), "windows-1252"));
             String minhaLinha;
             while ((minhaLinha = br.readLine()) != null) {
                 numeros.append(minhaLinha).append("\n");
+
                 listaHtml.add(numeros);
             }
             br.close();
@@ -37,6 +35,7 @@ public class obterNfc {
             int nLinha = 0;
             while (scan.hasNextLine()) {
                 linha = scan.nextLine();
+                linha = java.net.URLDecoder.decode(linha, "UTF-8");
                 // Pega razão social
                 if (linha.contains("u20")) {
                     linha = linha.substring(30, linha.indexOf("</"));
@@ -51,8 +50,9 @@ public class obterNfc {
                 }
                 // Pega logradouro
                 if (nLinha == 148) {
+
                     linha = linha.substring(18, linha.indexOf(","));
-                    emitente.logradouro = linha;
+                    emitente.logradouro = new String (linha.getBytes("ISO-8859-1"), "windows-1252");
                     Emitente.logradouroSelect = emitente.logradouro.toUpperCase();
 
                 }

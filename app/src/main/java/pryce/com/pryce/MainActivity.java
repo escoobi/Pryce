@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -18,7 +18,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -39,7 +39,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 
-import static pryce.com.pryce.Emitente.*;
+import static pryce.com.pryce.Emitente.qrcodeUrl;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseNFC;
     ArrayAdapter<String> autoComplete;
     private MapView mapView;
+    private MapboxMap mapboxMap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         completa = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
         btnScan = (Button) findViewById(R.id.btnQrCode);
-        txtRazao = (TextView) findViewById(R.id.txtRazao);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         autoComplete = new ArrayAdapter<String>(this, android.R.layout.simple_selectable_list_item);
         final Activity act = this;
@@ -205,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
         savedInstanceState.putString("cod", qrcode);
         super.onSaveInstanceState(savedInstanceState);
         mapView.onSaveInstanceState(savedInstanceState);
+        mapView.setVisibility(View.INVISIBLE);
     }
 
     private void alert(String msg) {
@@ -212,47 +214,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void carregarTxt(String razao, String cnpj, String bairro, String endereco, String numero, String cidade, String uf) {
-        TextView textRazao = (TextView) findViewById(R.id.txtRazao);
-        textRazao.setText(razao);
+    public void carregarTxt(String razao, String valor) {
 
-        TextView textCnpj = (TextView) findViewById(R.id.txtCnpj);
-        textCnpj.setText(cnpj);
-
-        TextView textBairro = (TextView) findViewById(R.id.txtBairro);
-        textBairro.setText(bairro);
-
-        TextView textEndereco = (TextView) findViewById(R.id.txtEndereco);
-        textEndereco.setText(endereco);
-
-        TextView textNumero = (TextView) findViewById(R.id.txtNumero);
-        textNumero.setText(numero);
-
-        TextView textCidade = (TextView) findViewById(R.id.txtCidade);
-        textCidade.setText(cidade);
-
-        TextView textUf = (TextView) findViewById(R.id.txtUf);
-        textUf.setText(uf);
-        exibirProgress(false);
-
+        mapView.setVisibility(View.VISIBLE);
 
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
+                mapboxMap.clear();
 
-
-                mapboxMap.addMarker(new MarkerOptions()
-
-
-                        .position(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log)))
-
-                        .title(Produtos.descricaoSelect)
-                        .snippet(Produtos.valorSelect));
-                mapboxMap.getMinZoomLevel();
+                Marker pontoVenda = mapboxMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).title(razao).snippet(Produtos.descricaoSelect  + "\n R$ " + valor.replace(".", ",")));
+                mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).zoom(14).tilt(30).build());
+                mapboxMap.selectMarker(pontoVenda);
+                mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(true);
 
 
             }
         });
+
+
+
+        exibirProgress(false);
 
 
     }
@@ -317,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             Emitente.lat = child.child("lat").getValue().toString();
                             Emitente.log = child.child("log").getValue().toString();
-                            carregarTxt(child.child("razao").getValue().toString(), child.child("cnpj").getValue().toString(), child.child("bairro").getValue().toString(), child.child("logradouro").getValue().toString(), child.child("numero").getValue().toString(), child.child("cidade").getValue().toString(), child.child("uf").getValue().toString());
+                            carregarTxt(child.child("razao").getValue().toString(), child.child("valor").getValue().toString());
 
                         } catch (Exception ex) {
                             alert("Produto não localizado.");
@@ -422,8 +404,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-
 }
 
 
