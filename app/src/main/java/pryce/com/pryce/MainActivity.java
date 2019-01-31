@@ -35,8 +35,13 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 
 import static pryce.com.pryce.Emitente.qrcodeUrl;
@@ -95,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         new MTaskAutoCompleta().execute(descProd);
+
+        new MTaskTeste().execute();
 
 
         completa.setAdapter(autoComplete);
@@ -403,6 +410,37 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    public class MTaskTeste extends AsyncTask<String, Integer, Boolean>{
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            BufferedReader  br = null;
+            StringBuilder sb;
+            URL urlllll = null;
+            String url = "http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?p=11190117423783000119650000000194751522681499|2|1|2|09630FBF9DED82AA2515C04E59F488B5473585D3\u001b";
+            try {
+                urlllll = new URL(url);
+                HttpURLConnection conectar = (HttpURLConnection) urlllll.openConnection();
+                conectar.setDoOutput(true);
+                conectar.setConnectTimeout(15*1000);
+                conectar.connect();
+                br =  new BufferedReader(new InputStreamReader(conectar.getInputStream()));
+                sb = new StringBuilder();
+                String linha = null;
+                while((linha = br.readLine()) != null){
+                    sb.append(linha + "\n");
+                    System.out.println(sb.toString());
+                }
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
     }
 }
 
