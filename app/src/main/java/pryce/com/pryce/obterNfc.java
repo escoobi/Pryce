@@ -4,100 +4,68 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Scanner;
 
 
 public class obterNfc {
-
-    public String linha = null;
     public BufferedReader br;
-    public static StringBuilder numerosPublicos;
-
 
     public void carregaNfc(URL url) throws IOException {
         Emitente emitente = new Emitente();
-        Produtos produto = new Produtos();
-        StringBuilder numeros = new StringBuilder();
 
 
-        try {
-            br = new BufferedReader(new InputStreamReader(url.openStream(), "windows-1252"));
-            String minhaLinha;
-            while ((minhaLinha = br.readLine()) != null) {
-                if(numeros != null) {
-                    numeros.append(minhaLinha).append("\n");
-                }
+        br = new BufferedReader(new InputStreamReader(url.openStream(), "windows-1252"));
+        String minhaLinha;
+        int nLinha = 0;
+        while ((minhaLinha = br.readLine()) != null) {
+
+
+            nLinha++;
+
+            //pega fantasia
+            if (nLinha == 130) {
+                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
+                emitente.fantasia = minhaLinha;
+                Emitente.fantasiaSelect = emitente.fantasia.toUpperCase();
             }
-            br.close();
-            numerosPublicos = numeros;
-            Scanner scan = new Scanner(numeros.toString());
-            int nLinha = 0;
-            while (scan.hasNextLine()) {
+            // pega logradouro
+            if (nLinha == 146) {
 
-                linha = scan.nextLine();
-                // Pega nome fantasia
-                if (nLinha == 130) {
-                    linha = linha.substring(44, linha.indexOf("</"));
-                    emitente.fantasia = linha;
-                    Emitente.fantasiaSelect = emitente.fantasia.toUpperCase();
-                }
-                // Pega logradouro
-                if (nLinha == 148) {
+                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
+                emitente.logradouro = minhaLinha;
+                Emitente.logradouroSelect = emitente.logradouro.toUpperCase();
 
-                    linha = linha.substring(18, linha.indexOf(","));
-                    emitente.logradouro = new String(linha);
-                    Emitente.logradouroSelect = emitente.logradouro.toUpperCase();
-
-                }
-                // Pega numero
-                if (nLinha == 149) {
-                    linha = linha.substring(2, linha.indexOf(","));
-                    emitente.numero = linha;
-                    Emitente.numeroSelect = emitente.numero.toUpperCase();
-
-                }
-                // Pega bairro
-                if (nLinha == 151) {
-                    linha = linha.substring(2, linha.indexOf(","));
-                    emitente.bairro = linha;
-                    Emitente.bairroSelect = emitente.bairro.toUpperCase();
-                }
-                // Pega cidade
-                if (nLinha == 152) {
-                    linha = linha.substring(2, linha.indexOf(","));
-                    emitente.cidade = linha;
-                    Emitente.cidadeSelect = emitente.cidade.toUpperCase();
-                }
-                // Pega uf
-                if (nLinha == 153) {
-                    linha = linha.substring(2, linha.indexOf("</"));
-                    emitente.uf = linha;
-                    Emitente.ufSelect = emitente.uf.toUpperCase();
-                }
-
-                // Pegar data emissão
-                if (linha.contains("Protocolo de Autoriza")) {
-                    produto.data = linha.substring(79, 89);
-                    produto.data = produto.data.replace("/", ".");
-                    produto.hora = linha.substring(90, 98);
-                }
-
-              /*  //Pega Quantidade de Itens
-                if (linha.contains("Qtd. total de itens:")) {
-                    linha = linha.substring(59, linha.indexOf("</span>"));
-                    Produtos.qtdProd = Integer.parseInt(linha);
-                }*/
-
-                nLinha++;
             }
 
-            obterCordenadasEmitente obter = new obterCordenadasEmitente();
-            obter.obterLatLog(emitente.logradouro, emitente.bairro, emitente.numero, emitente.cidade, emitente.uf);
-            scan.close();
-            br.close();
-        } catch (Exception localException) {
-            System.out.println(localException.toString());
+            // Pega numero
+            if (nLinha == 156) {
+                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
+                emitente.numero = minhaLinha;
+                Emitente.numeroSelect = emitente.numero.toUpperCase();
+
+            }
+            // Pega bairro
+            if (nLinha == 154) {
+                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
+                emitente.bairro = minhaLinha;
+                Emitente.bairroSelect = emitente.bairro.toUpperCase();
+            }
+            // Pega cidade
+            if (nLinha == 160) {
+                minhaLinha = minhaLinha.substring(32, minhaLinha.indexOf("</"));
+                emitente.cidade = minhaLinha;
+                Emitente.cidadeSelect = emitente.cidade.toUpperCase();
+            }
+            // Pega uf
+            if (nLinha == 166) {
+                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
+                emitente.uf = minhaLinha;
+                Emitente.ufSelect = emitente.uf.toUpperCase();
+            }
+
         }
+        br.close();
+        obterCordenadasEmitente obter = new obterCordenadasEmitente();
+        obter.obterLatLog(emitente.logradouro, emitente.bairro, emitente.numero, emitente.cidade, emitente.uf);
 
     }
 

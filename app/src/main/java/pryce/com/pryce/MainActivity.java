@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayAdapter<String> autoComplete;
     private MapView mapView;
     private MapboxMap mapboxMap;
+    URL urlqrCode;
 
 
     @Override
@@ -182,6 +183,12 @@ public class MainActivity extends AppCompatActivity {
                                                 Emitente.cnpjSelect = qrcode.substring(70, 84);
                                                 new MTask().execute(qrcode);
 
+                                                try {
+                                                    urlqrCode = new URL(qrcode);
+                                                } catch (MalformedURLException e) {
+                                                    e.printStackTrace();
+                                                }
+
 
                                             }
 
@@ -282,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
-            new MTaskProduto().execute();
+            new MTaskProduto().execute(urlqrCode);
         }
 
     }
@@ -343,12 +350,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class MTaskProduto extends AsyncTask<String, Integer, Boolean> {
+    public class MTaskProduto extends AsyncTask<URL, Integer, Boolean> {
 
         @Override
-        protected Boolean doInBackground(String... voids) {
+        protected Boolean doInBackground(URL... voids) {
             obterProdutos prod = new obterProdutos();
-            prod.carregaProdutos();
+            try {
+                prod.carregaProdutos(urlqrCode);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return true;
         }
 
