@@ -41,7 +41,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.DecimalFormat;
 
 import static pryce.com.pryce.Emitente.qrcodeUrl;
@@ -60,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayAdapter<String> autoComplete;
     private MapView mapView;
     private MapboxMap mapboxMap;
+    URL urlqrCode;
 
 
     @Override
@@ -101,7 +101,8 @@ public class MainActivity extends AppCompatActivity {
 
         new MTaskAutoCompleta().execute(descProd);
 
-        new MTaskTeste().execute();
+
+       // new MTaskTeste().execute();
 
 
         completa.setAdapter(autoComplete);
@@ -172,13 +173,21 @@ public class MainActivity extends AppCompatActivity {
                                             if (!qrcode.contains("chNFe=")) {
                                                 qrcode = qrcode.substring(qrcode.indexOf("=") + 1, qrcode.length());
                                                 qrcode = "http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?p=" + qrcode;
+                                                Emitente.cnpjSelect = qrcode.substring(66, 80);
                                                 new MTask().execute(qrcode);
 
 
                                             } else {
                                                 qrcode = qrcode.substring(qrcode.indexOf("=") + 1, qrcode.length());
                                                 qrcode = "http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?chNFe=" + qrcode;
+                                                Emitente.cnpjSelect = qrcode.substring(70, 84);
                                                 new MTask().execute(qrcode);
+
+                                                try {
+                                                    urlqrCode = new URL(qrcode);
+                                                } catch (MalformedURLException e) {
+                                                    e.printStackTrace();
+                                                }
 
 
                                             }
@@ -255,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
             URL url = null;
             try {
 
-                url = new URL(qrcode);
+                url = new URL("https://portalcontribuinte.sefin.ro.gov.br/Publico/consultapublica.jsp?TipoDevedor=3&NuDevedor=" + Emitente.cnpjSelect);
                 obterNfc infoNfc = new obterNfc();
                 infoNfc.carregaNfc(url);
 
@@ -280,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
-            new MTaskProduto().execute();
+            new MTaskProduto().execute(urlqrCode);
         }
 
     }
@@ -341,12 +350,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class MTaskProduto extends AsyncTask<String, Integer, Boolean> {
+    public class MTaskProduto extends AsyncTask<URL, Integer, Boolean> {
 
         @Override
-        protected Boolean doInBackground(String... voids) {
+        protected Boolean doInBackground(URL... voids) {
             obterProdutos prod = new obterProdutos();
-            prod.carregaProdutos();
+            try {
+                prod.carregaProdutos(urlqrCode);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return true;
         }
 
@@ -418,19 +431,21 @@ public class MainActivity extends AppCompatActivity {
             BufferedReader  br = null;
             StringBuilder sb;
             URL urlllll = null;
-            String url = "http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?p=11190117423783000119650000000194751522681499|2|1|2|09630FBF9DED82AA2515C04E59F488B5473585D3\u001b";
+
+            //http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?p=11181217494206000118650010000002081000002085|2|1|2|906ADD74B67D3AEAD129F9F3103E62ECC28EEA9E"
+            //http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?p=11190117423783000119650000000194751522681499|2|1|2|09630FBF9DED82AA2515C04E59F488B5473585D3
+            //https://portalcontribuinte.sefin.ro.gov.br/Publico/consultapublica.jsp?TipoDevedor=3&NuDevedor=17494206000118
+            String url = "https://portalcontribuinte.sefin.ro.gov.br/Publico/consultapublica.jsp?TipoDevedor=3&NuDevedor=17494206000118";
             try {
                 urlllll = new URL(url);
                 HttpURLConnection conectar = (HttpURLConnection) urlllll.openConnection();
-                conectar.setDoOutput(true);
-                conectar.setConnectTimeout(15*1000);
                 conectar.connect();
-                br =  new BufferedReader(new InputStreamReader(conectar.getInputStream()));
-                sb = new StringBuilder();
+                br =  new BufferedReader(new InputStreamReader(conectar.getInputStream(), "iso-8859-1"));
+
                 String linha = null;
                 while((linha = br.readLine()) != null){
-                    sb.append(linha + "\n");
-                    System.out.println(sb.toString());
+                   // sb.append(linha + "\n");
+                    System.out.println(linha.toString());
                 }
 
             } catch (MalformedURLException e) {

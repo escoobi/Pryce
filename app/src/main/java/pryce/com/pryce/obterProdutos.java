@@ -1,35 +1,29 @@
 package pryce.com.pryce;
 
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import java.util.Iterator;
-import java.util.Scanner;
 
-import static pryce.com.pryce.obterNfc.listaHtml;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 
 public class obterProdutos {
 
-    public String linha = null;
-
+    public BufferedReader br;
     private DatabaseReference mDatabaseProtudo;
 
 
-    public void carregaProdutos() {
+    public void carregaProdutos(URL url) throws IOException {
+        br = new BufferedReader(new InputStreamReader(url.openStream(), "windows-1252"));
+        String minhaLinha;
+        int nLinha = 0;
+        while ((minhaLinha = br.readLine()) != null) {
 
-        Object element = null;
-        Iterator itr = listaHtml.iterator();
-
-        try {
-
-            while (itr.hasNext()) {
-                element = itr.next();
-            }
-
-            Scanner scanProdutos = new Scanner(element.toString());
-            while (scanProdutos.hasNextLine()) {
-                linha = scanProdutos.nextLine();
-                if (linha.contains("RCod")) {
+            nLinha++;
+/*
+            if (nLinha == 135) {
+                if (mi.contains("RCod")) {
                     Produtos.descricaoSelect = linha.substring(38, linha.indexOf("</span>"));
                     Produtos.codigoSelect = linha.substring(linha.indexOf(":") + 1, linha.length());
                     Produtos.codigoSelect = Produtos.codigoSelect.substring(0, Produtos.codigoSelect.indexOf(")"));
@@ -49,7 +43,7 @@ public class obterProdutos {
                         prdt.numero = Emitente.numeroSelect;
                         prdt.logradouro = Emitente.logradouroSelect;
                         prdt.cnpj = Emitente.cnpjSelect;
-                        prdt.razao = Emitente.razaoSelect;
+                        prdt.razao = Emitente.fantasiaSelect;
                         prdt.bairro = Emitente.bairroSelect;
                         prdt.uf = Emitente.ufSelect;
                         prdt.data = Produtos.data;
@@ -59,11 +53,11 @@ public class obterProdutos {
                         mDatabaseProtudo.push().setValue(prdt);
 
                     }
-                }
-            }
-            scanProdutos.close();
 
-        } catch (Exception e) {
+                }
+
+            }
+                */
         }
     }
 }
