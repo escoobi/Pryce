@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -13,46 +12,40 @@ public class obterNfc {
     public String linha = null;
     public BufferedReader br;
     public static StringBuilder numerosPublicos;
-    public static ArrayList listaHtml;
+
 
     public void carregaNfc(URL url) throws IOException {
         Emitente emitente = new Emitente();
         Produtos produto = new Produtos();
         StringBuilder numeros = new StringBuilder();
-        listaHtml = new ArrayList();
+
 
         try {
             br = new BufferedReader(new InputStreamReader(url.openStream(), "windows-1252"));
             String minhaLinha;
             while ((minhaLinha = br.readLine()) != null) {
-                numeros.append(minhaLinha).append("\n");
-
-                listaHtml.add(numeros);
+                if(numeros != null) {
+                    numeros.append(minhaLinha).append("\n");
+                }
             }
             br.close();
             numerosPublicos = numeros;
             Scanner scan = new Scanner(numeros.toString());
             int nLinha = 0;
             while (scan.hasNextLine()) {
+
                 linha = scan.nextLine();
-                linha = java.net.URLDecoder.decode(linha, "UTF-8");
-                // Pega razão social
-                if (linha.contains("u20")) {
-                    linha = linha.substring(30, linha.indexOf("</"));
-                    emitente.razao = linha;
-                    Emitente.razaoSelect = emitente.razao.toUpperCase();
-                }
-                // Pega cnpj
-                if (nLinha == 147) {
-                    linha = linha.substring(6, linha.indexOf("</"));
-                    emitente.cnpj = linha;
-                    Emitente.cnpjSelect = emitente.cnpj;
+                // Pega nome fantasia
+                if (nLinha == 130) {
+                    linha = linha.substring(44, linha.indexOf("</"));
+                    emitente.fantasia = linha;
+                    Emitente.fantasiaSelect = emitente.fantasia.toUpperCase();
                 }
                 // Pega logradouro
                 if (nLinha == 148) {
 
                     linha = linha.substring(18, linha.indexOf(","));
-                    emitente.logradouro = new String (linha.getBytes("ISO-8859-1"), "windows-1252");
+                    emitente.logradouro = new String(linha);
                     Emitente.logradouroSelect = emitente.logradouro.toUpperCase();
 
                 }
@@ -89,11 +82,12 @@ public class obterNfc {
                     produto.hora = linha.substring(90, 98);
                 }
 
-                //Pega Quantidade de Itens
+              /*  //Pega Quantidade de Itens
                 if (linha.contains("Qtd. total de itens:")) {
                     linha = linha.substring(59, linha.indexOf("</span>"));
                     Produtos.qtdProd = Integer.parseInt(linha);
-                }
+                }*/
+
                 nLinha++;
             }
 
@@ -102,7 +96,7 @@ public class obterNfc {
             scan.close();
             br.close();
         } catch (Exception localException) {
-            String t = "t" + "a" + localException.toString();
+            System.out.println(localException.toString());
         }
 
     }

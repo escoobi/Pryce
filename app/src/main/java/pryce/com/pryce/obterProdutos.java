@@ -2,10 +2,10 @@ package pryce.com.pryce;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import java.util.Iterator;
+
 import java.util.Scanner;
 
-import static pryce.com.pryce.obterNfc.listaHtml;
+
 
 
 public class obterProdutos {
@@ -18,13 +18,11 @@ public class obterProdutos {
     public void carregaProdutos() {
 
         Object element = null;
-        Iterator itr = listaHtml.iterator();
+
 
         try {
 
-            while (itr.hasNext()) {
-                element = itr.next();
-            }
+
 
             Scanner scanProdutos = new Scanner(element.toString());
             while (scanProdutos.hasNextLine()) {
@@ -49,7 +47,7 @@ public class obterProdutos {
                         prdt.numero = Emitente.numeroSelect;
                         prdt.logradouro = Emitente.logradouroSelect;
                         prdt.cnpj = Emitente.cnpjSelect;
-                        prdt.razao = Emitente.razaoSelect;
+                        prdt.razao = Emitente.fantasiaSelect;
                         prdt.bairro = Emitente.bairroSelect;
                         prdt.uf = Emitente.ufSelect;
                         prdt.data = Produtos.data;
