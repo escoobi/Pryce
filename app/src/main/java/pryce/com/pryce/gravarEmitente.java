@@ -16,7 +16,7 @@ public class gravarEmitente {
 
 
 
-    public void gravarEmitente(final String fantasia, final String cnpj, final String logradouro, final String bairro, final String numero, final String lat, final String log){
+    public void gravarEmitente(final String fantasia, final String razao, final String cnpj, final String logradouro, final String bairro, final String numero, final String lat, final String log){
 
         mDatabaseEmitente = FirebaseDatabase.getInstance().getReference();
         mDatabaseEmitente.orderByChild("cnpj").equalTo(cnpj).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -41,6 +41,7 @@ public class gravarEmitente {
                         emitenteUpdates.put(keyEmitente + "/logradouro", logradouro);
                         emitenteUpdates.put(keyEmitente + "/numero", numero);
                         emitenteUpdates.put(keyEmitente + "/fantasia", fantasia);
+                        emitenteUpdates.put(keyEmitente + "/razzao", razao);
                         emitenteUpdates.put(keyEmitente + "/lat", lat);
                         emitenteUpdates.put(keyEmitente + "/log", log);
 
@@ -50,7 +51,7 @@ public class gravarEmitente {
 
 
                     } else {
-                        emitente = new Emitente(fantasia, cnpj, logradouro, bairro, numero, lat, log);
+                        emitente = new Emitente(fantasia, razao, cnpj, logradouro, bairro, numero, lat, log);
                         mDatabaseEmitente.push().setValue(emitente);
                         //*********************************************************************************
 

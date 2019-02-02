@@ -35,10 +35,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -100,10 +97,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         new MTaskAutoCompleta().execute(descProd);
-
-
-       // new MTaskTeste().execute();
-
 
         completa.setAdapter(autoComplete);
         completa.setThreshold(1);
@@ -174,6 +167,12 @@ public class MainActivity extends AppCompatActivity {
                                                 qrcode = qrcode.substring(qrcode.indexOf("=") + 1, qrcode.length());
                                                 qrcode = "http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?p=" + qrcode;
                                                 Emitente.cnpjSelect = qrcode.substring(66, 80);
+                                                try {
+                                                    urlqrCode = new URL(qrcode);
+                                                } catch (MalformedURLException e) {
+                                                    e.printStackTrace();
+                                                }
+
                                                 new MTask().execute(qrcode);
 
 
@@ -181,13 +180,12 @@ public class MainActivity extends AppCompatActivity {
                                                 qrcode = qrcode.substring(qrcode.indexOf("=") + 1, qrcode.length());
                                                 qrcode = "http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?chNFe=" + qrcode;
                                                 Emitente.cnpjSelect = qrcode.substring(70, 84);
-                                                new MTask().execute(qrcode);
-
                                                 try {
                                                     urlqrCode = new URL(qrcode);
                                                 } catch (MalformedURLException e) {
                                                     e.printStackTrace();
                                                 }
+                                                new MTask().execute(qrcode);
 
 
                                             }
@@ -230,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void carregarTxt(String razao, String valor) {
+    public void carregarTxt() {
 
         mapView.setVisibility(View.VISIBLE);
 
@@ -238,16 +236,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
                 mapboxMap.clear();
-
-                Marker pontoVenda = mapboxMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).title(razao).snippet(Produtos.descricaoSelect  + "\n R$ " + valor.replace(".", ",")));
-                mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).zoom(14).tilt(30).build());
-                mapboxMap.selectMarker(pontoVenda);
-                mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(true);
+                if (Emitente.fantasiaSelect.isEmpty()) {
+                    Marker pontoVenda = mapboxMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).title(Emitente.razaoSelect).snippet(Produtos.descricaoSelect + "\n R$ " + Produtos.valorSelect.replace(".", ",")));
+                    mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).zoom(14).tilt(30).build());
+                    mapboxMap.selectMarker(pontoVenda);
+                    mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(true);
+                } else {
+                    Marker pontoVenda = mapboxMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).title(Emitente.fantasiaSelect).snippet(Produtos.descricaoSelect + "\n R$ " + Produtos.valorSelect.replace(".", ",")));
+                    mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).zoom(14).tilt(30).build());
+                    mapboxMap.selectMarker(pontoVenda);
+                    mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(true);
+                }
 
 
             }
         });
-
 
 
         exibirProgress(false);
@@ -313,9 +316,13 @@ public class MainActivity extends AppCompatActivity {
 
 
                         try {
+
                             Emitente.lat = child.child("lat").getValue().toString();
                             Emitente.log = child.child("log").getValue().toString();
-                            carregarTxt(child.child("razao").getValue().toString(), child.child("valor").getValue().toString());
+                            Emitente.razaoSelect = child.child("razao").getValue().toString();
+                            Emitente.fantasiaSelect = child.child("fantasia").getValue().toString();
+                            Produtos.valorSelect = child.child("valor").getValue().toString();
+                            carregarTxt();
 
                         } catch (Exception ex) {
                             alert("Produto não localizado.");
@@ -423,39 +430,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-    }
-
-    public class MTaskTeste extends AsyncTask<String, Integer, Boolean>{
-        @Override
-        protected Boolean doInBackground(String... strings) {
-            BufferedReader  br = null;
-            StringBuilder sb;
-            URL urlllll = null;
-
-            //http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?p=11181217494206000118650010000002081000002085|2|1|2|906ADD74B67D3AEAD129F9F3103E62ECC28EEA9E"
-            //http://www.nfce.sefin.ro.gov.br/consultanfce/consulta.jsp?p=11190117423783000119650000000194751522681499|2|1|2|09630FBF9DED82AA2515C04E59F488B5473585D3
-            //https://portalcontribuinte.sefin.ro.gov.br/Publico/consultapublica.jsp?TipoDevedor=3&NuDevedor=17494206000118
-            String url = "https://portalcontribuinte.sefin.ro.gov.br/Publico/consultapublica.jsp?TipoDevedor=3&NuDevedor=17494206000118";
-            try {
-                urlllll = new URL(url);
-                HttpURLConnection conectar = (HttpURLConnection) urlllll.openConnection();
-                conectar.connect();
-                br =  new BufferedReader(new InputStreamReader(conectar.getInputStream(), "iso-8859-1"));
-
-                String linha = null;
-                while((linha = br.readLine()) != null){
-                   // sb.append(linha + "\n");
-                    System.out.println(linha.toString());
-                }
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
     }
 }
 

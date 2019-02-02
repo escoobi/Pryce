@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class ConsultaProdutos {
 
+    public String fantasia;
     public String razao;
     public String descricao;
     public String valor;
@@ -20,7 +21,8 @@ public class ConsultaProdutos {
     public String lat;
     public String log;
 
-    public ConsultaProdutos(String razao, String descricao, String valor, String cnpj, String logradouro, String bairro, String numero, String cidade, String uf, String cod, String data, String hora, String lat, String log) {
+    public ConsultaProdutos(String fantasia, String razao, String descricao, String valor, String cnpj, String logradouro, String bairro, String numero, String cidade, String uf, String cod, String data, String hora, String lat, String log) {
+        this.fantasia = fantasia;
         this.razao = razao;
         this.descricao = descricao;
         this.valor = valor;
@@ -42,6 +44,7 @@ public class ConsultaProdutos {
 
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
+        result.put("fantasia", fantasia);
         result.put("razao", razao);
         result.put("descricao", descricao);
         result.put("valor", valor);

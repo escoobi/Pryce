@@ -21,16 +21,25 @@ public class obterNfc {
 
             nLinha++;
 
+            //pega razao
+            if (nLinha == 126) {
+                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
+                emitente.razao = minhaLinha;
+                Emitente.razaoSelect = emitente.razao.toUpperCase();
+            }
+
+
             //pega fantasia
             if (nLinha == 130) {
                 minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
                 emitente.fantasia = minhaLinha;
                 Emitente.fantasiaSelect = emitente.fantasia.toUpperCase();
             }
-            // pega logradouro
-            if (nLinha == 146) {
 
-                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
+            // pega logradouro
+            if (nLinha == 176) {
+
+                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("-"));
                 emitente.logradouro = minhaLinha;
                 Emitente.logradouroSelect = emitente.logradouro.toUpperCase();
 

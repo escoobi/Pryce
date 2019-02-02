@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Emitente {
+
+    public String razao;
+    public static String razaoSelect;
     public String fantasia;
     public static String fantasiaSelect;
     public String cnpj;
@@ -25,8 +28,9 @@ public class Emitente {
 
 
 
-    public Emitente(String fantasia, String cnpj, String logradouro, String bairro, String numero, String lat, String log) {
+    public Emitente(String razao, String fantasia, String cnpj, String logradouro, String bairro, String numero, String lat, String log) {
         this.fantasia = fantasia;
+        this.razao = razao;
         this.logradouro = logradouro;
         this.bairro = bairro;
         this.numero = numero;
@@ -39,6 +43,7 @@ public class Emitente {
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
         result.put("fantasia", fantasia);
+        result.put("razao", razao);
         result.put("cnpj", cnpj);
         result.put("logradouro", logradouro);
         result.put("bairro", bairro);

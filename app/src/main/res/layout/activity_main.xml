@@ -8,17 +8,7 @@
 
     tools:context="pryce.com.pryce.MainActivity">
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/qrcodeLer"
-        app:layout_constraintBottom_toBottomOf="@+id/mapView"
-        app:layout_constraintStart_toStartOf="@+id/mapView" />
-
-    <com.mapbox.mapboxsdk.maps.MapView
+   <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
