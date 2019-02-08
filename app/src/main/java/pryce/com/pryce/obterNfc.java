@@ -46,18 +46,14 @@ public class obterNfc {
             }
 
             // Pega numero
-            if (nLinha == 156) {
+         /*   if (nLinha == 156) {
                 minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
                 emitente.numero = minhaLinha;
                 Emitente.numeroSelect = emitente.numero.toUpperCase();
 
-            }
+            }*/
             // Pega bairro
-            if (nLinha == 154) {
-                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
-                emitente.bairro = minhaLinha;
-                Emitente.bairroSelect = emitente.bairro.toUpperCase();
-            }
+
             // Pega cidade
             if (nLinha == 160) {
                 minhaLinha = minhaLinha.substring(32, minhaLinha.indexOf("</"));
@@ -65,10 +61,20 @@ public class obterNfc {
                 Emitente.cidadeSelect = emitente.cidade.toUpperCase();
             }
             // Pega uf
-            if (nLinha == 166) {
+            try {
+                if (nLinha == 166) {
+                    minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
+                    emitente.uf = minhaLinha;
+                    Emitente.ufSelect = emitente.uf;
+                }
+            }
+            catch (Exception ex){
+                System.out.println(ex.toString());
+            }
+            if (nLinha == 176) {
                 minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
-                emitente.uf = minhaLinha;
-                Emitente.ufSelect = emitente.uf.toUpperCase();
+                emitente.bairro = minhaLinha;
+                Emitente.bairroSelect = emitente.bairro.toUpperCase();
             }
 
         }
