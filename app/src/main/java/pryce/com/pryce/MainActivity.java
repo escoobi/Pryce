@@ -40,8 +40,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 
-import static pryce.com.pryce.Emitente.qrcodeUrl;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -57,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private MapView mapView;
     private MapboxMap mapboxMap;
     URL urlqrCode;
+    public static String qrcodeUrl = "";
 
 
     @Override
@@ -138,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (result != null) {
                 if (result.getContents() != null) {
-                    qrcodeUrl = "";
+
                     qrcode = result.getContents();
                     mDatabaseNFC = FirebaseDatabase.getInstance().getReference("nfc");
                     mDatabaseNFC.orderByChild("codeqr").equalTo(qrcode).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -274,10 +273,12 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-                alert("Endereço do QRCode inválido.");
+                this.cancel(true);
+
             } catch (Exception e) {
                 e.printStackTrace();
-                alert("Ops! Algum erro encontrado.");
+                this.cancel(true);
+
             }
 
             return true;
@@ -295,8 +296,36 @@ public class MainActivity extends AppCompatActivity {
             new MTaskProduto().execute(urlqrCode);
         }
 
-    }
+        @Override
+        protected void onCancelled(Boolean aBoolean) {
+            super.onCancelled(aBoolean);
+            alert("ops! ao inesperado ocorreu.");
 
+            mDatabaseNFC = FirebaseDatabase.getInstance().getReference("nfc");
+            mDatabaseNFC.orderByChild("codeqr").equalTo(qrcode).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    chamaQrdCode chamaQrdCode = dataSnapshot.getValue(chamaQrdCode.class);
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            qrcodeUrl = snapshot.getKey();
+                            mDatabaseNFC.child(qrcodeUrl).removeValue();
+
+                        }
+
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+
+            });
+            exibirProgress(false);
+        }
+    }
     public class MTaskConsulta extends AsyncTask<String, Integer, Boolean> {
 
         @Override

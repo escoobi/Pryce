@@ -37,22 +37,28 @@ public class obterNfc {
             }
 
             // pega logradouro
-            if (nLinha == 176) {
+            if (nLinha == 146) {
 
-                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("-"));
+                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
                 emitente.logradouro = minhaLinha;
                 Emitente.logradouroSelect = emitente.logradouro.toUpperCase();
 
             }
 
             // Pega numero
-         /*   if (nLinha == 156) {
+            if (nLinha == 156) {
                 minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
                 emitente.numero = minhaLinha;
                 Emitente.numeroSelect = emitente.numero.toUpperCase();
 
-            }*/
+            }
             // Pega bairro
+
+            if (nLinha == 154) {
+                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
+                emitente.bairro = minhaLinha;
+                Emitente.bairroSelect = emitente.bairro.toUpperCase();
+            }
 
             // Pega cidade
             if (nLinha == 160) {
@@ -67,14 +73,8 @@ public class obterNfc {
                     emitente.uf = minhaLinha;
                     Emitente.ufSelect = emitente.uf;
                 }
-            }
-            catch (Exception ex){
+            } catch (Exception ex) {
                 System.out.println(ex.toString());
-            }
-            if (nLinha == 176) {
-                minhaLinha = minhaLinha.substring(44, minhaLinha.indexOf("</"));
-                emitente.bairro = minhaLinha;
-                Emitente.bairroSelect = emitente.bairro.toUpperCase();
             }
 
         }
@@ -83,6 +83,4 @@ public class obterNfc {
         obter.obterLatLog(emitente.logradouro, emitente.bairro, emitente.numero, emitente.cidade, emitente.uf);
 
     }
-
-
 }
