@@ -8,11 +8,12 @@
 
     tools:context="pryce.com.pryce.MainActivity">
 
-   <com.mapbox.mapboxsdk.maps.MapView
+    <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:orientation="vertical"
@@ -20,7 +21,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView"
+        app:layout_constraintTop_toTopOf="@+id/autoCompleteTextView"
         mapbox:mapbox_cameraZoom="14" />
 
     <Button
@@ -42,13 +43,14 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:gravity="center|center_vertical|center_horizontal"
-        android:inputType="textMultiLine"
         android:hint="@string/caixa_procura"
+        android:inputType="textMultiLine"
         android:lines="2"
         android:maxLines="4"
         android:minLines="2"
         android:scrollHorizontally="false"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

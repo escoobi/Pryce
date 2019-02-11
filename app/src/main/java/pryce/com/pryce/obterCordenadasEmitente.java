@@ -10,6 +10,8 @@ import java.util.Scanner;
 public class obterCordenadasEmitente {
 
 
+    public static int nLinha = 0;
+
 
     public void obterLatLog(String logradouro, String bairro, String numero, String cidade, String uf){
         StringBuilder numeros = new StringBuilder();
@@ -36,19 +38,20 @@ public class obterCordenadasEmitente {
             while (scan.hasNextLine()) {
                 String linha = scan.nextLine();
                 // Pegar lat e log
-
-                if (linha.contains("\"lat\" : ")) {
+                nLinha++;
+                if (nLinha == 54) {
                     linha = linha.substring(linha.indexOf("-"), linha.indexOf(","));
                     Emitente.lat = linha;
 
                 }
-                if (linha.contains("\"lng\" : ")) {
+                if (nLinha == 55) {
                     linha = linha.substring(linha.indexOf("-"), linha.length());
                     Emitente.log = linha;
                 }
                 if(Emitente.log != null && Emitente.lat != null){
                     break;
                 }
+
             }
             scan.close();
 
