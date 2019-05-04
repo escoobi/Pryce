@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -25,24 +26,23 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.annotations.Marker;
-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
-import com.mapbox.mapboxsdk.camera.CameraPosition;
-import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
-import com.mapbox.mapboxsdk.maps.Style;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 
 public class MainActivity extends AppCompatActivity {
 
+
+    static ConstraintLayout constraintLayout;
+    static TextView txtAguarde;
+    static TextView txtEmpresa;
+    static TextView txtProduto;
+    static TextView txtValor;
     Button btnScan;
     TextView txtRazao;
     static ProgressBar mProgressBar;
@@ -52,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseProtudo;
     private DatabaseReference mDatabaseNFC;
     ArrayAdapter<String> autoComplete;
-    private MapView mapView;
-    private MapboxMap mapboxMap;
     URL urlqrCode;
     public static String qrcodeUrl = "";
 
@@ -61,12 +59,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Mapbox.getInstance(this, "pk.eyJ1IjoiZXNjb29iaSIsImEiOiJjanF3dGpyNDUwMGc3NDJtamNsMmUwajRnIn0.ISWkwRW5hAn0gZbX9tjAqQ");
+        //Mapbox.getInstance(this, "pk.eyJ1IjoiZXNjb29iaSIsImEiOiJjanF3dGpyNDUwMGc3NDJtamNsMmUwajRnIn0.ISWkwRW5hAn0gZbX9tjAqQ");
         setContentView(R.layout.activity_main);
         completa = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
         btnScan = (Button) findViewById(R.id.btnQrCode);
+        txtAguarde = (TextView) findViewById(R.id.textViewAguarde);
+        txtAguarde.setVisibility(View.INVISIBLE);
+        constraintLayout = (ConstraintLayout) findViewById(R.id.constraintDadosEmpresa);
+        constraintLayout.setVisibility(View.INVISIBLE);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        autoComplete = new ArrayAdapter<String>(this, android.R.layout.simple_selectable_list_item);
+        txtEmpresa = (TextView) findViewById(R.id.textViewEmpresa);
+        txtProduto = (TextView) findViewById(R.id.textViewProduto);
+        txtValor = (TextView) findViewById(R.id.textViewValor);
+        autoComplete = new ArrayAdapter<String>(this, R.layout.autocompleta_layout);
         final Activity act = this;
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //bloqueia orientação de tela.
         btnScan.setOnClickListener(new View.OnClickListener() {
@@ -83,16 +88,6 @@ public class MainActivity extends AppCompatActivity {
             qrcode = savedInstanceState.getString("cod");
 
         }
-
-
-        mapView = findViewById(R.id.mapView);
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(mapboxMap -> mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                    }
-                })
-        );
 
 
         new MTaskAutoCompleta().execute(descProd);
@@ -125,8 +120,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private static void exibirAguarde(boolean exibir) {
+        txtAguarde.setVisibility(exibir ? View.VISIBLE : View.GONE);
+    }
+
     private static void exibirProgress(boolean exibir) {
         mProgressBar.setVisibility(exibir ? View.VISIBLE : View.GONE);
+
+    }
+
+    private static void exibirDados(boolean exibir) {
+        constraintLayout.setVisibility(exibir ? View.VISIBLE : View.GONE);
+
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -212,14 +217,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         exibirProgress(false);
+        exibirAguarde(false);
 
     }
 
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putString("cod", qrcode);
         super.onSaveInstanceState(savedInstanceState);
-        mapView.onSaveInstanceState(savedInstanceState);
-        mapView.setVisibility(View.INVISIBLE);
+
     }
 
     private void alert(String msg) {
@@ -227,36 +232,38 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void carregarTxt() {
+    /*
+        public void carregarTxt() {
 
-        mapView.setVisibility(View.VISIBLE);
+            mapView.setVisibility(View.VISIBLE);
 
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(MapboxMap mapboxMap) {
-                mapboxMap.clear();
-                if (Emitente.fantasiaSelect.isEmpty()) {
-                    Marker pontoVenda = mapboxMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).title(Emitente.razaoSelect).snippet(Produtos.descricaoSelect + "\n R$ " + Produtos.valorSelect.replace(".", ",")));
-                    mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).zoom(14).tilt(30).build());
-                    mapboxMap.selectMarker(pontoVenda);
-                    mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(true);
-                } else {
-                    Marker pontoVenda = mapboxMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).title(Emitente.fantasiaSelect).snippet(Produtos.descricaoSelect + "\n R$ " + Produtos.valorSelect.replace(".", ",")));
-                    mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).zoom(14).tilt(30).build());
-                    mapboxMap.selectMarker(pontoVenda);
-                    mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(true);
+            mapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(MapboxMap mapboxMap) {
+                    mapboxMap.clear();
+                    if (Emitente.fantasiaSelect.isEmpty()) {
+                        Marker pontoVenda = mapboxMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).title(Emitente.razaoSelect).snippet(Produtos.descricaoSelect + "\n R$ " + Produtos.valorSelect.replace(".", ",")));
+                        mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).zoom(14).tilt(30).build());
+                        mapboxMap.selectMarker(pontoVenda);
+                        mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(true);
+                    } else {
+                        Marker pontoVenda = mapboxMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).title(Emitente.fantasiaSelect).snippet(Produtos.descricaoSelect + "\n R$ " + Produtos.valorSelect.replace(".", ",")));
+                        mapboxMap.setCameraPosition(new CameraPosition.Builder().target(new LatLng(Double.parseDouble(Emitente.lat), Double.parseDouble(Emitente.log))).zoom(14).tilt(30).build());
+                        mapboxMap.selectMarker(pontoVenda);
+                        mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(true);
+                    }
+
+
                 }
+            });
 
 
-            }
-        });
+            exibirProgress(false);
+            exibirAguarde(false);
 
 
-        exibirProgress(false);
-
-
-    }
-
+        }
+    */
     public class MTask extends AsyncTask<String, Integer, Boolean> {
 
         @Override
@@ -288,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             exibirProgress(true);
+            exibirAguarde(true);
         }
 
         @Override
@@ -324,8 +332,10 @@ public class MainActivity extends AppCompatActivity {
 
             });
             exibirProgress(false);
+            exibirAguarde(false);
         }
     }
+
     public class MTaskConsulta extends AsyncTask<String, Integer, Boolean> {
 
         @Override
@@ -339,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    exibirProgress(true);
+
 
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
 
@@ -351,19 +361,36 @@ public class MainActivity extends AppCompatActivity {
                             Emitente.razaoSelect = child.child("razao").getValue().toString();
                             Emitente.fantasiaSelect = child.child("fantasia").getValue().toString();
                             Produtos.valorSelect = child.child("valor").getValue().toString();
-                            carregarTxt();
+
+                            if (!Emitente.fantasiaSelect.equals("")) {
+                                txtEmpresa.setText(Emitente.fantasiaSelect);
+                            } else {
+                                txtEmpresa.setText(Emitente.razaoSelect);
+                            }
+                            BigDecimal bd = new BigDecimal(Double.parseDouble(Produtos.valorSelect));
+                            NumberFormat nf = NumberFormat.getCurrencyInstance();
+                            String formato = nf.format(bd);
+                            txtProduto.setText(Produtos.descricaoSelect);
+                            txtValor.setText(formato);
+
+                            exibirDados(true);
+                            exibirProgress(false);
+                            exibirAguarde(false);
 
                         } catch (Exception ex) {
                             alert("Produto não localizado.");
                             exibirProgress(false);
+                            exibirAguarde(false);
                         }
                     }
+
 
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-
+                    exibirProgress(false);
+                    exibirAguarde(false);
                 }
             });
 
@@ -375,12 +402,14 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             exibirProgress(true);
+            exibirAguarde(true);
         }
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
             exibirProgress(false);
+            exibirAguarde(false);
 
 
         }
@@ -448,6 +477,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             exibirProgress(true);
+            exibirAguarde(true);
             autoComplete.clear();
         }
 
@@ -455,6 +485,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
             exibirProgress(false);
+            exibirAguarde(false);
 
         }
 

@@ -1,0 +1,172 @@
+Index: app/src/main/java/pryce/com/pryce/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package pryce.com.pryce;\n\nimport android.app.Activity;\nimport android.content.Intent;\nimport android.os.AsyncTask;\nimport android.support.v7.app.AppCompatActivity;\nimport android.os.Bundle;\n\nimport android.view.View;\nimport android.widget.Button;\nimport android.widget.TextView;\nimport android.widget.Toast;\n\nimport com.google.zxing.integration.android.IntentIntegrator;\nimport com.google.zxing.integration.android.IntentResult;\n\nimport java.io.BufferedReader;\n\nimport java.io.IOException;\nimport java.io.InputStreamReader;\nimport java.net.HttpURLConnection;\nimport java.net.MalformedURLException;\nimport java.net.URL;\nimport java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.Statement;\nimport java.util.Scanner;\n\nimport okhttp3.OkHttpClient;\nimport okhttp3.Request;\nimport okhttp3.RequestBody;\nimport okhttp3.Response;\n\n\npublic class MainActivity extends AppCompatActivity {\n    Button btnScan;\n    String qrcode;\n\n    public static int qtditens = 0;\n    public static String razao = null;\n    public static String cnpj = null;\n    public static String cnpjSelect = null;\n    public static String logradouro = null;\n    public static String numero = null;\n    public static String bairro = null;\n    public static String cidade = null;\n    public static String uf = null;\n    public static String descr = null;\n    public static String cod = null;\n    public static String val = null;\n    public static String data = null;\n    public static String hora = null;\n\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        setContentView(R.layout.activity_main);\n        btnScan = (Button) findViewById(R.id.btnQrCode);\n        final Activity act = this;\n        btnScan.setOnClickListener(new View.OnClickListener() {\n            public void onClick(View v) {\n                IntentIntegrator integrator = new IntentIntegrator(act);\n                integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);\n                integrator.setPrompt(\"Ler QRCode - NFc\");\n                integrator.setCameraId(0);\n                integrator.initiateScan();\n            }\n\n        });\n        if (savedInstanceState != null) {\n            qrcode = savedInstanceState.getString(\"cod\");\n\n        }\n\n\n    }\n\n    protected void onActivityResult(int requestCode, int resultCode, Intent data) {\n        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);\n        if (result != null) {\n            if (result.getContents() != null) {\n                alert(result.getContents());\n                qrcode = result.getContents();\n                qrcode = qrcode.substring(qrcode.indexOf(\".\") + 1, qrcode.indexOf(\"&n\"));\n                qrcode = qrcode + \"&nVersao=100&tpAmb=1\";\n            } else {\n                alert(\"Leitura cancelada.\");\n            }\n        } else {\n            super.onActivityResult(requestCode, resultCode, data);\n        }\n    }\n\n\n    public void onSaveInstanceState(Bundle savedInstanceState) {\n        savedInstanceState.putString(\"cod\", qrcode);\n        MTask task = new MTask();\n        task.execute(qrcode);\n        super.onSaveInstanceState(savedInstanceState);\n    }\n\n\n    private void alert(String msg) {\n        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();\n\n    }\n\n    private void carregarTxt(String texto) {\n        TextView text = (TextView) findViewById(R.id.txtCod);\n        text.setText(texto);\n\n    }\n\n    public void onResume() {\n        super.onResume();\n        carregarTxt(qrcode);\n\n    }\n\n\n    public class MTask extends AsyncTask<String, Long, String> {\n\n\n        @Override\n        protected String doInBackground(String... urls) {\n\n            URL url = null;\n            try {\n                url = new URL(qrcode);\n                obterEmitente(url);\n                obterItens(url);\n            } catch (MalformedURLException e) {\n                e.printStackTrace();\n            } catch (Exception e) {\n                e.printStackTrace();\n            }\n            return null;\n        }\n\n\n        protected void onPostExecute(String resultValue) {\n        }\n    }\n\n    public void obterEmitente(URL url) throws IOException {\n        StringBuilder numeros = new StringBuilder();\n        try {\n            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));\n            String minhaLinha;\n            while ((minhaLinha = br.readLine()) != null) {\n                numeros.append(minhaLinha).append(\"\\n\");\n\n            }\n\n            Scanner scan = new Scanner(numeros.toString());\n            int nLinha = 0;\n            while (scan.hasNextLine()) {\n                String linha = scan.nextLine();\n                // Pega razão social\n                if (linha.contains(\"u20\")) {\n                    linha = linha.substring(30, linha.indexOf(\"</\"));\n                    razao = linha;\n                }\n                // Pega cnpj\n                if (nLinha == 147) {\n                    linha = linha.substring(6, linha.indexOf(\"</\"));\n                    cnpj = linha;\n                    cnpjSelect = linha;\n                }\n                // Pega logradouro\n                if (nLinha == 148) {\n                    linha = linha.substring(18, linha.indexOf(\",\"));\n                    logradouro = linha;\n                }\n                // Pega numero\n                if (nLinha == 149) {\n                    linha = linha.substring(2, linha.indexOf(\",\"));\n                    numero = linha;\n                }\n                // Pega bairro\n                if (nLinha == 151) {\n                    linha = linha.substring(2, linha.indexOf(\",\"));\n                    bairro = linha;\n                }\n                // Pega cidade\n                if (nLinha == 152) {\n                    linha = linha.substring(2, linha.indexOf(\",\"));\n                    cidade = linha;\n                }\n                // Pega uf\n                if (nLinha == 153) {\n                    linha = linha.substring(2, linha.indexOf(\"</\"));\n                    uf = linha;\n                }\n                // Pegar qtd itens\n                if (linha.contains(\"Qtd. total de itens:\")) {\n                    linha = linha.substring(59, linha.indexOf(\"</span>\"));\n                    qtditens = Integer.parseInt(linha);\n                }\n                // Pegar data emissão\n                if (linha.contains(\"Protocolo de Autoriza\")) {\n                    data = linha.substring(79, 89);\n                    data = data.replace(\"/\", \".\");\n                    hora = linha.substring(90, 98);\n                }\n                nLinha++;\n                if (razao != null && cnpj != null && logradouro != null && numero != null && bairro != null\n                        && cidade != null && uf != null) {\n                    insertEmitente(razao.toUpperCase(), cnpjSelect, logradouro.toUpperCase(), numero, bairro.toUpperCase(), cidade.toUpperCase(), uf.toUpperCase());\n                    razao = null;\n                    cnpj = null;\n                    logradouro = null;\n                    numero = null;\n                    bairro = null;\n                    cidade = null;\n                    uf = null;\n                }\n            }\n            scan.close();\n            br.close();\n        } catch (Exception localException) {\n        }\n    }\n\n    public void insertEmitente(String razao, String cnpj, String logradouro, String numero, String bairro, String cidade, String uf) {\n        try {\n\n            OkHttpClient client = new OkHttpClient();\n            URL url = new URL(\"http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?razao=\" + razao + \"&cnpj=\" + cnpj + \"&logradouro=\" + logradouro + \"&numero=\" + numero + \"&bairro=\" + bairro + \"&cidade=\" + cidade + \"&uf=\" + uf);\n            Request request = new Request.Builder().url(url).build();\n            Response response = client.newCall(request).execute();\n\n\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n\n    public void obterItens(URL caminho) throws IOException {\n        StringBuilder numeros = new StringBuilder();\n\n        try {\n            BufferedReader br = new BufferedReader(new InputStreamReader(caminho.openStream()));\n\n            while (br.ready()) {\n                numeros.append(br.readLine()).append(\"\\n\");\n\n            }\n\n\n            String minhaLinhaDaXexeca;\n            while ((minhaLinhaDaXexeca = br.readLine()) != null) {\n                numeros.append(minhaLinhaDaXexeca).append(\"\\n\");\n\n            }\n\n\n            Scanner scan = new Scanner(numeros.toString());\n            int numLinha = 0;\n            int minhaLinha = 157;\n            int minhaLinhaValor = 159;\n            int qtdTotal = minhaLinha + (6 * qtditens);\n            while (scan.hasNextLine()) {\n                String linha = scan.nextLine();\n\n                for (int x = 0; x <= qtditens; x++) {\n                    if (qtdTotal != numLinha) {\n                        // Obter itens\n                        if (numLinha == minhaLinha) {\n\n                            descr = linha.substring(38, linha.indexOf(\"</span>\"));\n                            cod = linha.substring(linha.indexOf(\":\") + 1, linha.indexOf(\")</span>\")).replace(\" \", \"\");\n                            minhaLinha = minhaLinha + 6;\n\n                        }\n                        // Obter valor itens\n                        if (numLinha == minhaLinhaValor) {\n\n                            val = linha.substring(linha.indexOf(\"Vl. Unit.:</strong>&nbsp;\") + 25, linha.indexOf(\"</span></td>\"));\n                            val = val.replace(\",\", \".\");\n                            minhaLinhaValor = minhaLinhaValor + 6;\n\n                        }\n\n                    }\n\n                }\n                if (descr != null && cod != null && val != null) {\n                    insertProd(descr, cod, val);\n                    descr = null;\n                    cod = null;\n                    val = null;\n                }\n                numLinha++;\n\n            }\n            scan.close();\n            br.close();\n            insertProd(descr, cod, val);\n        } catch (Exception localException) {\n        }\n    }\n\n    public void insertProd(String desc, String cod, String val) {\n        try {\n            OkHttpClient client = new OkHttpClient();\n            URL url = new URL(\"http://spark.gruporondomotos.com.br/pryceInsertProd.php?desc=\" + desc + \"&cod=\" + cod + \"&val=\" + val + \"&dt=\" + data + \"&hr=\" + hora + \"&cnpj=\" + cnpjSelect);\n            Request request = new Request.Builder().url(url).build();\n            Response response = client.newCall(request).execute();\n\n        } catch (Exception e) {\n            e.printStackTrace();\n\n        }\n    }\n}\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/pryce/com/pryce/MainActivity.java	(revision 28d43986f6a66c99ececac3cb093442f27a23fb4)
++++ app/src/main/java/pryce/com/pryce/MainActivity.java	(date 1532976136281)
+@@ -82,8 +82,6 @@
+             if (result.getContents() != null) {
+                 alert(result.getContents());
+                 qrcode = result.getContents();
+-                qrcode = qrcode.substring(qrcode.indexOf(".") + 1, qrcode.indexOf("&n"));
+-                qrcode = qrcode + "&nVersao=100&tpAmb=1";
+             } else {
+                 alert("Leitura cancelada.");
+             }
+@@ -160,49 +158,59 @@
+                 // Pega razão social
+                 if (linha.contains("u20")) {
+                     linha = linha.substring(30, linha.indexOf("</"));
++                    System.out.println(linha);
+                     razao = linha;
+                 }
+                 // Pega cnpj
+                 if (nLinha == 147) {
+                     linha = linha.substring(6, linha.indexOf("</"));
++                    System.out.println(linha);
+                     cnpj = linha;
+                     cnpjSelect = linha;
+                 }
+                 // Pega logradouro
+                 if (nLinha == 148) {
+                     linha = linha.substring(18, linha.indexOf(","));
++                    System.out.println(linha);
+                     logradouro = linha;
+                 }
+                 // Pega numero
+                 if (nLinha == 149) {
+                     linha = linha.substring(2, linha.indexOf(","));
++                    System.out.println(linha);
+                     numero = linha;
+                 }
+                 // Pega bairro
+                 if (nLinha == 151) {
+                     linha = linha.substring(2, linha.indexOf(","));
++                    System.out.println(linha);
+                     bairro = linha;
+                 }
+                 // Pega cidade
+                 if (nLinha == 152) {
+                     linha = linha.substring(2, linha.indexOf(","));
++                    System.out.println(linha);
+                     cidade = linha;
+                 }
+                 // Pega uf
+                 if (nLinha == 153) {
+                     linha = linha.substring(2, linha.indexOf("</"));
++                    System.out.println(linha);
+                     uf = linha;
+                 }
+                 // Pegar qtd itens
+                 if (linha.contains("Qtd. total de itens:")) {
+                     linha = linha.substring(59, linha.indexOf("</span>"));
+                     qtditens = Integer.parseInt(linha);
++                    System.out.println(linha);
+                 }
+                 // Pegar data emissão
+-                if (linha.contains("Protocolo de Autoriza")) {
+-                    data = linha.substring(79, 89);
++                if (linha.contains("Via Consumidor")) {
++                    linha = linha.substring(105, linha.indexOf("-"));
++                    data = linha.substring(0, 10);
+                     data = data.replace("/", ".");
+-                    hora = linha.substring(90, 98);
++                    hora = linha.substring(11, 19);
++                    System.out.println(data + "\n" + hora);
+                 }
+                 nLinha++;
+                 if (razao != null && cnpj != null && logradouro != null && numero != null && bairro != null
+@@ -227,7 +235,7 @@
+         try {
+ 
+             OkHttpClient client = new OkHttpClient();
+-            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?razao=" + razao + "&cnpj=" + cnpj + "&logradouro=" + logradouro + "&numero=" + numero + "&bairro=" + bairro + "&cidade=" + cidade + "&uf=" + uf);
++            String url = "http://spark.gruporondomotos.com.br/pryceInsertEmitente.php?razao=" + razao + "&cnpj=" + cnpj + "&logradouro=" + logradouro + "&numero=" + numero + "&bairro=" + bairro + "&cidade=" + cidade + "&uf=" + uf;
+             Request request = new Request.Builder().url(url).build();
+             Response response = client.newCall(request).execute();
+ 
+@@ -243,6 +251,17 @@
+         try {
+             BufferedReader br = new BufferedReader(new InputStreamReader(caminho.openStream()));
+ 
++
++
++
++            OkHttpClient client = new OkHttpClient();
++
++            Request request = new Request.Builder().url(caminho).build();
++
++            Response response = client.newCall(request).execute();
++
++            String jsonDeResposta = response.body().string();
++
+             while (br.ready()) {
+                 numeros.append(br.readLine()).append("\n");
+ 
+@@ -268,15 +287,16 @@
+                     if (qtdTotal != numLinha) {
+                         // Obter itens
+                         if (numLinha == minhaLinha) {
+-
++                            System.out.println(linha.substring(38, linha.indexOf("</span>")));
+                             descr = linha.substring(38, linha.indexOf("</span>"));
++                            System.out.println(linha.substring(linha.indexOf(":") + 1, linha.indexOf(")</span>")).replace(" ", ""));
+                             cod = linha.substring(linha.indexOf(":") + 1, linha.indexOf(")</span>")).replace(" ", "");
+                             minhaLinha = minhaLinha + 6;
+ 
+                         }
+                         // Obter valor itens
+                         if (numLinha == minhaLinhaValor) {
+-
++                            System.out.println(linha.substring(linha.indexOf("Vl. Unit.:</strong>&nbsp;") + 25, linha.indexOf("</span></td>")));
+                             val = linha.substring(linha.indexOf("Vl. Unit.:</strong>&nbsp;") + 25, linha.indexOf("</span></td>"));
+                             val = val.replace(",", ".");
+                             minhaLinhaValor = minhaLinhaValor + 6;
+@@ -305,7 +325,7 @@
+     public void insertProd(String desc, String cod, String val) {
+         try {
+             OkHttpClient client = new OkHttpClient();
+-            URL url = new URL("http://spark.gruporondomotos.com.br/pryceInsertProd.php?desc=" + desc + "&cod=" + cod + "&val=" + val + "&dt=" + data + "&hr=" + hora + "&cnpj=" + cnpjSelect);
++            String url = "http://spark.gruporondomotos.com.br/pryceInsertProd.php?desc=" + desc + "&cod=" + cod + "&val=" + val + "&dt=" + data + "&hr=" + hora + "&cnpj=" + cnpjSelect;
+             Request request = new Request.Builder().url(url).build();
+             Response response = client.newCall(request).execute();
+ 
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"NullableNotNullManager\">\n    <option name=\"myDefaultNullable\" value=\"android.support.annotation.Nullable\" />\n    <option name=\"myDefaultNotNull\" value=\"android.support.annotation.NonNull\" />\n    <option name=\"myNullables\">\n      <value>\n        <list size=\"5\">\n          <item index=\"0\" class=\"java.lang.String\" itemvalue=\"org.jetbrains.annotations.Nullable\" />\n          <item index=\"1\" class=\"java.lang.String\" itemvalue=\"javax.annotation.Nullable\" />\n          <item index=\"2\" class=\"java.lang.String\" itemvalue=\"javax.annotation.CheckForNull\" />\n          <item index=\"3\" class=\"java.lang.String\" itemvalue=\"edu.umd.cs.findbugs.annotations.Nullable\" />\n          <item index=\"4\" class=\"java.lang.String\" itemvalue=\"android.support.annotation.Nullable\" />\n        </list>\n      </value>\n    </option>\n    <option name=\"myNotNulls\">\n      <value>\n        <list size=\"4\">\n          <item index=\"0\" class=\"java.lang.String\" itemvalue=\"org.jetbrains.annotations.NotNull\" />\n          <item index=\"1\" class=\"java.lang.String\" itemvalue=\"javax.annotation.Nonnull\" />\n          <item index=\"2\" class=\"java.lang.String\" itemvalue=\"edu.umd.cs.findbugs.annotations.NonNull\" />\n          <item index=\"3\" class=\"java.lang.String\" itemvalue=\"android.support.annotation.NonNull\" />\n        </list>\n      </value>\n    </option>\n  </component>\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_1_7\" project-jdk-name=\"1.8\" project-jdk-type=\"JavaSDK\">\n    <output url=\"file://$PROJECT_DIR$/build/classes\" />\n  </component>\n  <component name=\"ProjectType\">\n    <option name=\"id\" value=\"Android\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/misc.xml	(revision 28d43986f6a66c99ececac3cb093442f27a23fb4)
++++ .idea/misc.xml	(date 1532976109873)
+@@ -25,7 +25,7 @@
+       </value>
+     </option>
+   </component>
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" project-jdk-name="1.8" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="JDK" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/build/classes" />
+   </component>
+   <component name="ProjectType">
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ProjectModuleManager\">\n    <modules>\n      <module fileurl=\"file://$PROJECT_DIR$/Pryce.iml\" filepath=\"$PROJECT_DIR$/Pryce.iml\" />\n      <module fileurl=\"file://$PROJECT_DIR$/Pryce.iml\" filepath=\"$PROJECT_DIR$/Pryce.iml\" />\n      <module fileurl=\"file://$PROJECT_DIR$/app/app.iml\" filepath=\"$PROJECT_DIR$/app/app.iml\" />\n      <module fileurl=\"file://$PROJECT_DIR$/app/app.iml\" filepath=\"$PROJECT_DIR$/app/app.iml\" />\n    </modules>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/modules.xml	(revision 28d43986f6a66c99ececac3cb093442f27a23fb4)
++++ .idea/modules.xml	(date 1532976109875)
+@@ -3,8 +3,6 @@
+   <component name="ProjectModuleManager">
+     <modules>
+       <module fileurl="file://$PROJECT_DIR$/Pryce.iml" filepath="$PROJECT_DIR$/Pryce.iml" />
+-      <module fileurl="file://$PROJECT_DIR$/Pryce.iml" filepath="$PROJECT_DIR$/Pryce.iml" />
+-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+     </modules>
+   </component>
