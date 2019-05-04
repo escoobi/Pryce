@@ -1,7 +1,6 @@
 package pryce.com.pryce;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
@@ -10,8 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -71,7 +68,10 @@ public class MainActivity extends AppCompatActivity {
         txtEmpresa = (TextView) findViewById(R.id.textViewEmpresa);
         txtProduto = (TextView) findViewById(R.id.textViewProduto);
         txtValor = (TextView) findViewById(R.id.textViewValor);
-        autoComplete = new ArrayAdapter<String>(this, R.layout.autocompleta_layout);
+        //*************************************
+        autoComplete = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line, COUNTRIES);
+        //autoComplete = new ArrayAdapter<String>(this, R.layout.autocompleta_layout);
+        //*************************************
         final Activity act = this;
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //bloqueia orientação de tela.
         btnScan.setOnClickListener(new View.OnClickListener() {
@@ -90,9 +90,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        new MTaskAutoCompleta().execute(descProd);
-
         completa.setAdapter(autoComplete);
+
+
+
+
+//        new MTaskAutoCompleta().execute(descProd);
+
+       /* completa.setAdapter(autoComplete);
         completa.setThreshold(1);
 
         completa.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -116,9 +121,14 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+*/
 
     }
+
+
+    private static final String[] COUNTRIES = new String[] {
+            "Belgium", "France", "Italy", "Germany", "Spain"
+    };
 
     private static void exibirAguarde(boolean exibir) {
         txtAguarde.setVisibility(exibir ? View.VISIBLE : View.GONE);
