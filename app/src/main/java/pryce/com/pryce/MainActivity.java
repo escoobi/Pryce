@@ -1,6 +1,7 @@
 package pryce.com.pryce;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
@@ -9,6 +10,8 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     static TextView txtEmpresa;
     static TextView txtProduto;
     static TextView txtValor;
+
     Button btnScan;
     TextView txtRazao;
     static ProgressBar mProgressBar;
@@ -68,8 +72,10 @@ public class MainActivity extends AppCompatActivity {
         txtEmpresa = (TextView) findViewById(R.id.textViewEmpresa);
         txtProduto = (TextView) findViewById(R.id.textViewProduto);
         txtValor = (TextView) findViewById(R.id.textViewValor);
+
         //*************************************
-        autoComplete = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line, COUNTRIES);
+        //autoComplete = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line);
+        autoComplete = new ArrayAdapter<String>(this, R.layout.lista_produtos, R.id.textView_completa);
         //autoComplete = new ArrayAdapter<String>(this, R.layout.autocompleta_layout);
         //*************************************
         final Activity act = this;
@@ -95,9 +101,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//        new MTaskAutoCompleta().execute(descProd);
+        new MTaskAutoCompleta().execute(descProd);
 
-       /* completa.setAdapter(autoComplete);
+        completa.setAdapter(autoComplete);
         completa.setThreshold(1);
 
         completa.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -121,14 +127,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-*/
+
 
     }
 
 
-    private static final String[] COUNTRIES = new String[] {
-            "Belgium", "France", "Italy", "Germany", "Spain"
-    };
 
     private static void exibirAguarde(boolean exibir) {
         txtAguarde.setVisibility(exibir ? View.VISIBLE : View.GONE);

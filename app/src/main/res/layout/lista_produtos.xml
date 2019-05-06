@@ -5,11 +5,12 @@
     android:layout_height="wrap_content"
     android:padding="4dp">
 
+
     <ImageView
         android:id="@+id/image_carPrice"
         android:layout_width="60dp"
         android:layout_height="40dp"
-        tools:src="@mipmap/ic_cesta_price" />
+        tools:src="@mipmap/cesta_price" />
 
     <TextView
         android:id="@+id/textView_completa"
@@ -17,6 +18,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:padding="8dp"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"
-        tools:text="Xeteba" />
+        android:textSize="12dp"
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"/>
 </LinearLayout>
